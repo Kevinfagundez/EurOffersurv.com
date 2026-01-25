@@ -32,7 +32,7 @@ function handleLogin(event) {
     console.log('Login simulado con:', { email, password });
     
     // Redirigir al dashboard
-    window.location.href = 'index.html';
+    window.location.href = 'dashboard.html';
 }
 
 /**
@@ -51,7 +51,7 @@ function handleLogout() {
     // Confirmación antes de cerrar sesión
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         console.log('Cerrando sesión...');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 }
 

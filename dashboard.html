@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - EurOffersurv</title>
+    <style>
+        /* ========== RESET & BASE ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4caf50;
+            --primary-dark: #388e3c;
+            --primary-light: #81c784;
+            --secondary: #2196f3;
+            --secondary-dark: #1976d2;
+            --accent: #ff9800;
+            --danger: #f44336;
+            --text-dark: #212121;
+            --text-light: #757575;
+            --text-white: #ffffff;
+            --bg-light: #f5f5f5;
+            --bg-white: #ffffff;
+            --border: #e0e0e0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 16px rgba(0,0,0,0.15);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background: var(--bg-light);
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: none; /* Oculto por defecto en escritorio */
+            flex-direction: column;
+            gap: 4px;
+            transition: var(--transition);
+        }
+
+        .menu-toggle span {
+            width: 24px;
+            height: 3px;
+            background: var(--secondary-dark);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-btn {
+            background: var(--secondary-dark);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            color: var(--text-white);
+            transition: var(--transition);
+        }
+
+        .notification-btn:hover {
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+
+        .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--danger);
+            color: var(--text-white);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .user-balance {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-withdraw {
+            background: var(--secondary-dark);
+            color: var(--text-white);
+            border: 2px solid transparent;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-withdraw:hover {
+            background: white;
+            color: var(--secondary-dark);
+            border: 2px solid var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ========== DASHBOARD CONTAINER ========== */
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 72px);
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-white);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-nav {
+            padding: 1.5rem 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(33, 150, 243, 0.05);
+            color: var(--secondary-dark);
+        }
+
+        .sidebar-link.active {
+            background: rgba(33, 150, 243, 0.1);
+            color: var(--secondary-dark);
+            font-weight: 600;
+        }
+
+        .sidebar-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--secondary-dark);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1rem 1.5rem;
+        }
+
+        .sidebar-link.logout {
+            color: var(--danger);
+        }
+
+        .sidebar-link.logout:hover {
+            background: rgba(244,67,54,0.05);
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* ========== HERO BANNER ========== */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            border-radius: var(--radius);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .hero-banner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-banner-content h1 {
+            color: var(--text-white);
+            font-size: 2.2rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .hero-banner-content p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .btn-primary-large {
+            background: white;
+            color: var(--secondary-dark);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .btn-primary-large:hover {
+            background: var(--secondary-dark);
+            color: white;
+            border: 2px solid white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .hero-banner-image {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-banner-image img {
+            width: 100%;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* ========== OFFERS WALL ========== */
+        .offers-wall {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+        }
+
+        .btn-offer-tag {
+            background: var(--primary);
+            color: var(--text-white);
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-offer-tag:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .offers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .offer-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .offer-item:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            background: white;
+        }
+
+        .offer-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--bg-white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        .offer-details {
+            flex: 1;
+        }
+
+        .offer-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        .offer-progress {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: var(--transition);
+        }
+
+        .progress-dot.active {
+            background: var(--primary);
+        }
+
+        .btn-ver-ofertas {
+            background: var(--secondary-dark);
+            color: var(--text-white);
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-ver-ofertas:hover {
+            background: white;
+            border: 2px solid var(--secondary-dark);
+            color: var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ========== QUICK OFFERS ========== */
+        .quick-offers {
+            margin-bottom: 2rem;
+        }
+
+        .quick-offers h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .quick-offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quick-offer-card {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .quick-offer-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-offer-icon {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .quick-offer-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .points-badge {
+            background: var(--primary);
+            color: var(--text-white);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+
+        /* ========== BOTTOM SECTIONS ========== */
+        .bottom-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .ranking-section,
+        .countries-section {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header-small {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header-small h3 {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+        }
+
+        .btn-link {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-link:hover {
+            color: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .ranking-item:hover {
+            background: white;
+            box-shadow: var(--shadow);
+        }
+
+        .ranking-position {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .medal {
+            font-size: 1.5rem;
+        }
+
+        .ranking-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .ranking-amount {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .countries-flags {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .country-flag {
+            flex: 1;
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .country-flag:hover {
+            background: white;
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .flag {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .country-flag span {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .btn-more-offers {
+            background: var(--primary);
+            color: var(--text-white);
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-more-offers:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .hero-banner {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-banner-image {
+                display: none;
+            }
+
+            .quick-offers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex; /* Mostrar solo en móvil */
+            }
+
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 72px;
+                height: calc(100vh - 72px);
+                z-index: 50;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .navbar {
+                padding: 1rem;
+            }
+
+            .navbar-right {
+                gap: 0.5rem;
+            }
+
+            .user-details {
+                display: none;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .hero-banner {
+                padding: 2rem;
+            }
+
+            .hero-banner-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .btn-withdraw {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-banner-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .section-header h2,
+            .quick-offers h2 {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-banner,
+        .offers-wall,
+        .quick-offers {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Superior -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logo">
+                 <div class="logo"><span style="color:green">Eur</span><span style="color:blue">Offersurv.com</span></div>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <button class="notification-btn" onclick="showNotifications()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                    <path d="M15 6.5C15 5.17392 14.4732 3.90215 13.5355 2.96447C12.5979 2.02678 11.3261 1.5 10 1.5C8.67392 1.5 7.40215 2.02678 6.46447 2.96447C5.52678 3.90215 5 5.17392 5 6.5C5 12.5 2.5 14 2.5 14H17.5C17.5 14 15 12.5 15 6.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11.4417 17.5C11.2952 17.7526 11.0849 17.9622 10.8319 18.1079C10.5789 18.2537 10.292 18.3304 10 18.3304C9.70802 18.3304 9.42106 18.2537 9.16811 18.1079C8.91515 17.9622 8.70486 17.7526 8.55835 17.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="badge">3</span>
+            </button>
+            <button class="notification-btn" onclick="showTasks()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                    <path d="M18.3333 5L7.5 13.3333L2.5 8.33333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%234caf50'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-weight='bold'%3EJP%3C/text%3E%3C/svg%3E" alt="Juan Pérez">
+                </div>
+                <div class="user-details">
+                    <span class="user-name">Juan Pérez</span>
+                    <span class="user-balance">$5.25 USD</span>
+                </div>
+            </div>
+            <button class="btn-withdraw" onclick="handleWithdraw()">Retirar</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" onclick="navigateTo('inicio')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                    <span>Inicio</span>
+                </a>
+
+                <a class="sidebar-link" onclick="navigateTo('encuestas')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/>
+                    </svg>
+                    <span>Encuestas</span>
+                </a>
+
+                <a class="sidebar-link" onclick="navigateTo('ofertas')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                    </svg>
+                    <span>Ofertas</span>
+                </a>
+        
+                <a class="sidebar-link" onclick="navigateTo('recompensas')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"/>
+                    </svg>
+                    <span>Recompensas</span>
+                </a>
+
+                <a class="sidebar-link" onclick="navigateTo('soporte')">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"/>
+                    </svg>
+                    <span>Soporte</span>
+                </a>
+
+                <div class="sidebar-divider"></div>
+
+                <a class="sidebar-link logout" onclick="handleLogout()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"/>
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Banner -->
+            <section class="hero-banner">
+                <div class="hero-banner-content">
+                    <h1>GANA DINERO COMPLETANDO OFERTAS Y ENCUESTAS</h1>
+                    <p>Completa encuestas y ofertas, gana recompensas y tendrás dinero disponible desde una sola plataforma.</p>
+                    <button class="btn-primary-large" onclick="verOfertas()">VER OFERTAS</button>
+                </div>
+                    <img src="/img/dashboard-svgmain.svg" alt="svg central" style="box-shadow: #e0e0e0;">
+            </section>
+
+            <!-- Muro de Ofertas -->
+            <section class="offers-wall">
+                <div class="section-header">
+                    <h2>MURO DE OFERTAS</h2>
+                    <button class="btn-offer-tag">¡Oferta del día!</button>
+                </div>
+
+                <div class="offers-list">
+                    <div class="offer-item">
+                        <div class="offer-icon">📱</div>
+                        <div class="offer-details">
+                            <span class="offer-title">Instala la App - 120 pts</span>
+                        </div>
+                        <div class="offer-progress">
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot"></span>
+                        </div>
+                    </div>
+
+                    <div class="offer-item">
+                        <div class="offer-icon">📋</div>
+                        <div class="offer-details">
+                            <span class="offer-title">Completa la encuesta - 250 pts</span>
+                        </div>
+                        <div class="offer-progress">
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot"></span>
+                            <span class="progress-dot"></span>
+                        </div>
+                    </div>
+
+                    <div class="offer-item">
+                        <div class="offer-icon">🎮</div>
+                        <div class="offer-details">
+                            <span class="offer-title">Prueba un juego - 180 pts</span>
+                        </div>
+                        <div class="offer-progress">
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot active"></span>
+                            <span class="progress-dot active"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-ver-ofertas" onclick="verTodasOfertas()">VER TODAS LAS OFERTAS</button>
+            </section>
+
+            <!-- Ofertas Rápidas -->
+            <section class="quick-offers">
+                <h2>OFERTAS RÁPIDAS</h2>
+                <div class="quick-offers-grid">
+                    <div class="quick-offer-card">
+                        <div class="quick-offer-icon">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <rect width="80" height="80" fill="#e3f2fd" rx="12"/>
+                                <text x="40" y="50" text-anchor="middle" font-size="32">✓</text>
+                            </svg>
+                        </div>
+                        <h3>Encuestas pagadas</h3>
+                        <div class="points-badge">200 pts</div>
+                    </div>
+
+                    <div class="quick-offer-card">
+                        <div class="quick-offer-icon">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <rect width="80" height="80" fill="#e8f5e9" rx="12"/>
+                                <text x="40" y="50" text-anchor="middle" font-size="32">📱</text>
+                            </svg>
+                        </div>
+                        <h3>Prueba apps</h3>
+                        <div class="points-badge">100 pts</div>
+                    </div>
+
+                    <div class="quick-offer-card">
+                        <div class="quick-offer-icon">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <rect width="80" height="80" fill="#f3e5f5" rx="12"/>
+                                <text x="40" y="50" text-anchor="middle" font-size="32">🎮</text>
+                            </svg>
+                        </div>
+                        <h3>Juega y gana</h3>
+                        <div class="points-badge">100 - 300 pts</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ranking y Países -->
+            <div class="bottom-sections">
+                <section class="ranking-section">
+                    <div class="section-header-small">
+                        <h3>RANKING DE GANADORES</h3>
+                        <button class="btn-link" onclick="verRanking()">→</button>
+                    </div>
+                    <div class="ranking-list">
+                        <div class="ranking-item">
+                            <div class="ranking-position">
+                                <span class="medal">🥇</span>
+                                <span class="ranking-name">Carlos</span>
+                            </div>
+                            <span class="ranking-amount">$22.55 USD</span>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position">
+                                <span class="medal">🥈</span>
+                                <span class="ranking-name">Laura</span>
+                            </div>
+                            <span class="ranking-amount">$18.72 USD</span>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position">
+                                <span class="medal">🥉</span>
+                                <span class="ranking-name">Pedro</span>
+                            </div>
+                            <span class="ranking-amount">$17.89 USD</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="countries-section">
+                    <h3>OFERTAS DISPONIBLES EN:</h3>
+                    <div class="countries-flags">
+                        <div class="country-flag">
+                            <div class="flag">🇲🇽</div>
+                            <span>Latinoamérica</span>
+                        </div>
+                        <div class="country-flag">
+                            <div class="flag">🇪🇸</div>
+                            <span>España</span>
+                        </div>
+                    </div>
+                    <button class="btn-more-offers" onclick="verMasOfertas()">VER MÁS OFERTAS</button>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ========== SIDEBAR TOGGLE ==========
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+
+        // Cerrar sidebar al hacer click fuera (solo en móvil)
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                }
+            }
+        });
+
+        // ========== NAVIGATION FUNCTIONS ==========
+        function navigateTo(section) {
+            // Remover clase active de todos los enlaces
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Agregar clase active al enlace clickeado
+            event.currentTarget.classList.add('active');
+            
+            // Cerrar sidebar en móvil
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+                menuToggle.classList.remove('active');
+            }
+            
+            console.log('Navegando a:', section);
+            alert(`Función "${section}" estará disponible próximamente`);
+        }
+
+        function handleLogout() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                console.log('Cerrando sesión...');
+                // Redirigir a index.html
+                window.location.href = 'index.html';
+            }
+        }
+
+        function handleWithdraw() {
+            alert('Función de retiro disponible próximamente.\n\nRetiro mínimo: $5.00 USD\nTu balance actual: $5.25 USD');
+        }
+
+        function showNotifications() {
+            alert('Tienes 3 notificaciones nuevas:\n\n1. Nueva oferta disponible\n2. Encuesta completada\n3. Recompensa desbloqueada');
+        }
+
+        function showTasks() {
+            alert('Tienes 2 tareas pendientes:\n\n1. Completar perfil\n2. Verificar email');
+        }
+
+        function verOfertas() {
+            alert('Redirigiendo a la sección de ofertas...');
+        }
+
+        function verTodasOfertas() {
+            alert('Mostrando todas las ofertas disponibles...');
+        }
+
+        function verRanking() {
+            alert('Mostrando ranking completo de ganadores...');
+        }
+
+        function verMasOfertas() {
+            alert('Mostrando ofertas en más países...');
+        }
+
+        // ========== RESPONSIVE HANDLING ==========
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                menuToggle.classList.remove('active');
+            }
+        });
+
+        // ========== ANIMATIONS ==========
+        // Animar ofertas al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            const offers = document.querySelectorAll('.offer-item');
+            offers.forEach((offer, index) => {
+                offer.style.opacity = '0';
+                offer.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    offer.style.transition = 'all 0.5s ease';
+                    offer.style.opacity = '1';
+                    offer.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            console.log('Dashboard de EurOffersurv.com cargado exitosamente');
+        });
+    </script>
+</body>
+</html>
