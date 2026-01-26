@@ -1557,3 +1557,63 @@ body {
         font-size: 1.8rem;
     }
 }
+
+/* COOMING SOON ACTUALIZACIÓN*/
+/* ========== COMING SOON OVERLAY ========== */
+.coming-soon-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.coming-soon-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.coming-soon-box {
+    background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+    color: white;
+    padding: 2rem 3rem;
+    border-radius: var(--radius);
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    animation: float 3s ease-in-out infinite;
+}
+
+.coming-soon-box h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.coming-soon-box p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* Icon animation */
+.coming-soon-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    animation: pulse 1.5s infinite;
+}
+
+/* Animations */
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
