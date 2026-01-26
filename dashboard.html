@@ -750,7 +750,8 @@
     </style>
 </head>
 <body>
-    <!-- Navbar Superior -->
+
+    <!-- NAVBAR SUPERIOR -->
     <nav class="navbar">
         <div class="navbar-left">
             <button class="menu-toggle" id="menuToggle">
@@ -780,8 +781,8 @@
                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%234caf50'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-weight='bold'%3EJP%3C/text%3E%3C/svg%3E" alt="Juan Pérez">
                 </div>
                 <div class="user-details">
-                    <span class="user-name">Juan Pérez</span>
-                    <span class="user-balance">$5.25 USD</span>
+                    <span class="user-name" id="userName"></span>
+                    <span class="user-balance" id="userBalance"></span>
                 </div>
             </div>
             <button class="btn-withdraw" onclick="handleWithdraw()">Retirar</button>
@@ -789,7 +790,8 @@
     </nav>
 
     <div class="dashboard-container">
-        <!-- Sidebar -->
+        
+        <!-- SIDEBAR (LATERAL) -->
         <aside class="sidebar" id="sidebar">
             <nav class="sidebar-nav">
                 <a class="sidebar-link active" onclick="navigateTo('inicio')">
@@ -1033,14 +1035,13 @@
 
         function handleLogout() {
             if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-                console.log('Cerrando sesión...');
-                // Redirigir a index.html
-                window.location.href = 'index.html';
-            }
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
         }
+}
 
         function handleWithdraw() {
-            alert('Función de retiro disponible próximamente.\n\nRetiro mínimo: $5.00 USD\nTu balance actual: $5.25 USD');
+            alert('Función de retiro disponible próximamente.\n\nRetiro mínimo: $5.00 USD\nTu balance actual: $0 USD');
         }
 
         function showNotifications() {
@@ -1092,6 +1093,20 @@
 
             console.log('Dashboard de EurOffersurv.com cargado exitosamente');
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+
+        // Si no hay sesión → volver al login
+        if (!user) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userBalance').textContent = `$${user.balance} USD`;
+    });
+
     </script>
 </body>
 </html>

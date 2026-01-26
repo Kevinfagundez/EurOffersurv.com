@@ -48,13 +48,11 @@ function handleRegister() {
  * Maneja el cierre de sesión
  */
 function handleLogout() {
-    // Confirmación antes de cerrar sesión
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        console.log('Cerrando sesión...');
+        localStorage.removeItem('user');
         window.location.href = 'index.html';
     }
 }
-
 // ========== DASHBOARD FUNCTIONS ==========
 
 /**
@@ -217,7 +215,7 @@ function handleWithdraw() {
     
     if (withdrawBtn) {
         withdrawBtn.addEventListener('click', function() {
-            alert('Función de retiro disponible próximamente.\n\nRetiro mínimo: $5.00 USD\nTu balance actual: $5.25 USD');
+            alert('Función de retiro disponible próximamente.\n\nRetiro mínimo: $5.00 USD\nTu balance actual: $0 USD');
         });
     }
 }
@@ -562,3 +560,24 @@ function clearFieldError(field) {
     }
     field.classList.remove('error');
 }
+
+// ACTUALIZACIÓN DE DASHBOARD DINÁMICO
+
+document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    // ⚠️ Simulación (luego va backend)
+    const fakeUser = {
+        name: email.split('@')[0], // ejemplo: juan@email.com → juan
+        email: email,
+        balance: 0
+    };
+
+    localStorage.setItem('user', JSON.stringify(fakeUser));
+
+    // Redirigir al dashboard
+    window.location.href = 'dashboard.html';
+});
