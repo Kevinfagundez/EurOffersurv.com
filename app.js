@@ -19,29 +19,39 @@ function scrollToLogin() {
 function handleLogin(event) {
     event.preventDefault();
     
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     
     // Validación básica
     if (!email || !password) {
-        alert('Por favor completa todos los campos');
+        showToast('Por favor completa todos los campos', 'error');
+        return;
+    }
+
+    if (!auth.isValidEmail(email)) {
+        showToast('Ingresa un correo electrónico válido', 'error');
         return;
     }
     
-    // Simulación de login exitoso
-    console.log('Login simulado con:', { email, password });
+    // Intentar login
+    const result = auth.login(email, password);
     
-    // Redirigir al dashboard
-    window.location.href = 'dashboard.html';
+    if (result.success) {
+        showToast(result.message, 'success');
+        // Pequeño delay para que se vea el mensaje
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 500);
+    } else {
+        showToast(result.message, 'error');
+    }
 }
 
 /**
  * Maneja el registro de nuevos usuarios
  */
 function handleRegister() {
-    // Simulación de registro
-    console.log('Redirigiendo a registro...');
-    window.location.href = 'index.html';
+    window.location.href = 'register.html';
 }
 
 /**
@@ -49,11 +59,250 @@ function handleRegister() {
  */
 function handleLogout() {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
+        const result = auth.logout();
+        if (result.success) {
+            showToast(result.message, 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
+        }
     }
 }
+
+// ========== REGISTRATION FUNCTIONS ==========
+
+/**
+ * Maneja el envío del formulario de registro
+ */
+function handleRegistration(event) {
+    event.preventDefault();
+    
+    // Obtener datos del formulario
+    const formData = {
+        firstName: document.getElementById('firstName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        confirmPassword: document.getElementById('confirmPassword').value,
+        birthDate: document.getElementById('birthDate').value,
+        country: document.getElementById('country').value,
+        city: document.getElementById('city') ? document.getElementById('city').value.trim() : '',
+        gender: 'not-specified', // Campo opcional, valor por defecto
+        termsAccepted: document.getElementById('terms').checked
+    };
+
+    // Validaciones
+    const errors = validateRegistrationForm(formData);
+    
+    if (errors.length > 0) {
+        showToast(errors[0], 'error');
+        return;
+    }
+
+    // Intentar registrar
+    const result = auth.register(formData);
+    
+    if (result.success) {
+        showToast('¡Registro exitoso! Redirigiendo al login...', 'success');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
+    } else {
+        showToast(result.message, 'error');
+    }
+}
+
+/**
+ * Valida el formulario de registro
+ */
+function validateRegistrationForm(formData) {
+    const errors = [];
+    
+    // Validar nombre
+    if (!formData.firstName || formData.firstName.length < 2) {
+        errors.push('El nombre debe tener al menos 2 caracteres');
+    }
+    
+    // Validar apellido
+    if (!formData.lastName || formData.lastName.length < 2) {
+        errors.push('El apellido debe tener al menos 2 caracteres');
+    }
+    
+    // Validar email
+    if (!auth.isValidEmail(formData.email)) {
+        errors.push('Ingresa un correo electrónico válido');
+    }
+    
+    // Validar contraseña
+    if (!auth.isValidPassword(formData.password)) {
+        errors.push('La contraseña debe tener al menos 8 caracteres');
+    }
+    
+    // Validar coincidencia de contraseñas
+    if (formData.password !== formData.confirmPassword) {
+        errors.push('Las contraseñas no coinciden');
+    }
+    
+    // Validar fecha de nacimiento
+    if (!formData.birthDate) {
+        errors.push('Debes ingresar tu fecha de nacimiento');
+    } else {
+        const age = auth.calculateAge(formData.birthDate);
+        if (age < 18) {
+            errors.push('Debes tener al menos 18 años para registrarte');
+        }
+    }
+    
+    // Validar país
+    if (!formData.country) {
+        errors.push('Debes seleccionar tu país');
+    }
+    
+    // Validar términos y condiciones
+    if (!formData.termsAccepted) {
+        errors.push('Debes aceptar los términos y condiciones');
+    }
+    
+    return errors;
+}
+
+/**
+ * Toggle del campo de contraseña
+ */
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
+    field.setAttribute('type', type);
+}
+
+/**
+ * Actualiza el indicador de fortaleza de contraseña
+ */
+function updatePasswordStrength() {
+    const password = document.getElementById('password').value;
+    const strengthBar = document.querySelector('.strength-bar');
+    const strengthText = document.getElementById('strengthText');
+    
+    if (!strengthBar || !strengthText) return;
+    
+    let strength = 0;
+    let color = '#f44336';
+    let text = 'Débil';
+    
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    if (strength === 0) {
+        color = '#f44336';
+        text = 'Muy débil';
+    } else if (strength === 1) {
+        color = '#f44336';
+        text = 'Débil';
+    } else if (strength === 2) {
+        color = '#ff9800';
+        text = 'Regular';
+    } else if (strength === 3) {
+        color = '#4caf50';
+        text = 'Buena';
+    } else if (strength >= 4) {
+        color = '#388e3c';
+        text = 'Excelente';
+    }
+    
+    strengthBar.style.width = (strength * 25) + '%';
+    strengthBar.style.backgroundColor = color;
+    strengthText.textContent = text;
+    strengthText.style.color = color;
+}
+
+/**
+ * Valida que las contraseñas coincidan
+ */
+function validatePasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const passwordMatch = document.getElementById('passwordMatch');
+    
+    if (!passwordMatch) return true;
+    
+    if (confirmPassword && password !== confirmPassword) {
+        passwordMatch.classList.remove('hidden');
+        return false;
+    } else {
+        passwordMatch.classList.add('hidden');
+        return true;
+    }
+}
+
 // ========== DASHBOARD FUNCTIONS ==========
+
+/**
+ * Inicializa el dashboard con datos del usuario
+ */
+function initDashboard() {
+    // Verificar autenticación
+    if (!auth.requireAuth()) {
+        return;
+    }
+
+    const user = auth.getCurrentUser();
+    
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // Actualizar información del usuario en el dashboard
+    updateDashboardUserInfo(user);
+    
+    // Cargar datos del usuario
+    loadUserData(user);
+}
+
+/**
+ * Actualiza la información del usuario en el dashboard
+ */
+function updateDashboardUserInfo(user) {
+    // Actualizar nombre de usuario
+    const userNameElements = document.querySelectorAll('.user-name');
+    userNameElements.forEach(el => {
+        el.textContent = user.firstName + ' ' + user.lastName;
+    });
+
+    // Actualizar email
+    const userEmailElements = document.querySelectorAll('.user-email');
+    userEmailElements.forEach(el => {
+        el.textContent = user.email;
+    });
+
+    // Actualizar balance
+    const balanceElements = document.querySelectorAll('.user-balance');
+    balanceElements.forEach(el => {
+        el.textContent = `$${user.balance.toFixed(2)} USD`;
+    });
+
+    // Actualizar ganancias totales
+    const totalEarnedElements = document.querySelectorAll('.total-earned');
+    totalEarnedElements.forEach(el => {
+        el.textContent = `$${user.totalEarned.toFixed(2)} USD`;
+    });
+
+    // Actualizar ofertas completadas
+    const completedOffersElements = document.querySelectorAll('.completed-offers');
+    completedOffersElements.forEach(el => {
+        el.textContent = user.completedOffers;
+    });
+}
+
+/**
+ * Carga los datos del usuario
+ */
+function loadUserData(user) {
+    // Aquí puedes cargar ofertas, estadísticas, etc.
+    console.log('Datos del usuario cargados:', user);
+}
 
 /**
  * Toggle del menú lateral en móviles
@@ -116,66 +365,24 @@ function handleSidebarLinks() {
 }
 
 /**
- * Animación de progreso para las ofertas
+ * Maneja el botón de retiro
  */
-function animateOfferProgress() {
-    const progressDots = document.querySelectorAll('.progress-dot');
+function handleWithdraw() {
+    const user = auth.getCurrentUser();
+    const withdrawBtn = document.querySelector('.btn-withdraw');
     
-    progressDots.forEach((dot, index) => {
-        setTimeout(() => {
-            if (dot.classList.contains('active')) {
-                dot.style.animation = 'pulse 0.5s ease-in-out';
-            }
-        }, index * 100);
-    });
-}
-
-/**
- * Simula la carga de ofertas dinámicas
- */
-function loadOffers() {
-    const offersList = document.querySelector('.offers-list');
-    
-    if (offersList) {
-        // Efecto de entrada para las ofertas
-        const offers = offersList.querySelectorAll('.offer-item');
-        offers.forEach((offer, index) => {
-            offer.style.opacity = '0';
-            offer.style.transform = 'translateY(20px)';
+    if (withdrawBtn) {
+        withdrawBtn.addEventListener('click', function() {
+            const minWithdraw = 5.00;
+            const currentBalance = user ? user.balance : 0;
             
-            setTimeout(() => {
-                offer.style.transition = 'all 0.5s ease';
-                offer.style.opacity = '1';
-                offer.style.transform = 'translateY(0)';
-            }, index * 100);
+            if (currentBalance < minWithdraw) {
+                showToast(`Balance insuficiente. Mínimo para retiro: $${minWithdraw.toFixed(2)} USD`, 'error');
+            } else {
+                showToast('Función de retiro disponible próximamente', 'info');
+            }
         });
     }
-}
-
-/**
- * Actualiza el ranking en tiempo real (simulado)
- */
-function updateRanking() {
-    const rankingAmounts = document.querySelectorAll('.ranking-amount');
-    
-    rankingAmounts.forEach(amount => {
-        const currentValue = parseFloat(amount.textContent.replace('$', '').replace(' USD', ''));
-        
-        // Simular incremento aleatorio pequeño
-        const increment = (Math.random() * 0.5).toFixed(2);
-        const newValue = (currentValue + parseFloat(increment)).toFixed(2);
-        
-        // Animación del cambio
-        amount.style.transition = 'color 0.3s ease';
-        amount.style.color = '#4caf50';
-        
-        setTimeout(() => {
-            amount.textContent = `$${newValue} USD`;
-            setTimeout(() => {
-                amount.style.color = '';
-            }, 500);
-        }, 300);
-    });
 }
 
 /**
@@ -188,7 +395,6 @@ function handleNotifications() {
         btn.addEventListener('click', function() {
             const badge = this.querySelector('.badge');
             if (badge) {
-                // Animar y reducir el contador
                 badge.style.transform = 'scale(1.2)';
                 setTimeout(() => {
                     badge.style.transform = 'scale(1)';
@@ -208,52 +414,24 @@ function handleNotifications() {
 }
 
 /**
- * Maneja el botón de retiro
+ * Animación de carga de ofertas
  */
-function handleWithdraw() {
-    const withdrawBtn = document.querySelector('.btn-withdraw');
+function loadOffers() {
+    const offersList = document.querySelector('.offers-list');
     
-    if (withdrawBtn) {
-        withdrawBtn.addEventListener('click', function() {
-            alert('Función de retiro disponible próximamente.\n\nRetiro mínimo: $5.00 USD\nTu balance actual: $0 USD');
+    if (offersList) {
+        const offers = offersList.querySelectorAll('.offer-item');
+        offers.forEach((offer, index) => {
+            offer.style.opacity = '0';
+            offer.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                offer.style.transition = 'all 0.5s ease';
+                offer.style.opacity = '1';
+                offer.style.transform = 'translateY(0)';
+            }, index * 100);
         });
     }
-}
-
-/**
- * Añade efectos hover personalizados a las cards
- */
-function addCardEffects() {
-    const cards = document.querySelectorAll('.quick-offer-card, .offer-item');
-    
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        });
-    });
-}
-
-/**
- * Simula la carga de contenido dinámico
- */
-function simulateContentLoading() {
-    // Simular actualización del balance cada 30 segundos
-    setInterval(() => {
-        const balance = document.querySelector('.user-balance');
-        if (balance) {
-            const currentBalance = parseFloat(balance.textContent.replace('$', '').replace(' USD', ''));
-            const newBalance = (currentBalance + 0.05).toFixed(2);
-            balance.textContent = `$${newBalance} USD`;
-            
-            // Efecto de resaltado
-            balance.style.fontWeight = '700';
-            balance.style.color = '#4caf50';
-            setTimeout(() => {
-                balance.style.fontWeight = '';
-                balance.style.color = '';
-            }, 1000);
-        }
-    }, 30000);
 }
 
 // ========== RESPONSIVE HANDLING ==========
@@ -276,30 +454,45 @@ function handleResize() {
  */
 document.addEventListener('DOMContentLoaded', function() {
     
-    // ===== LOGIN PAGE =====
+    // ===== INDEX PAGE (LOGIN) =====
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
+        // Redirigir si ya está autenticado
+        auth.redirectIfAuthenticated();
+        
         loginForm.addEventListener('submit', handleLogin);
-        console.log('Login page initialized');
+    }
+    
+    // ===== REGISTER PAGE =====
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        // Redirigir si ya está autenticado
+        auth.redirectIfAuthenticated();
+        
+        registerForm.addEventListener('submit', handleRegistration);
+        
+        // Validación de contraseña en tiempo real
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('input', updatePasswordStrength);
+        }
+        
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+        }
     }
     
     // ===== DASHBOARD PAGE =====
-    const dashboardPage = document.querySelector('.dashboard-page');
-    if (dashboardPage) {
-        // Inicializar funciones del dashboard
+    const dashboard = document.querySelector('.dashboard-container, .dashboard');
+    if (dashboard) {
+        initDashboard();
         initMenuToggle();
         handleSidebarLinks();
-        handleNotifications();
         handleWithdraw();
+        handleNotifications();
         loadOffers();
-        animateOfferProgress();
-        addCardEffects();
-        simulateContentLoading();
-        
-        // Actualizar ranking cada 10 segundos
-        setInterval(updateRanking, 10000);
-        
-        console.log('Dashboard initialized');
     }
     
     // ===== GLOBAL EVENTS =====
@@ -324,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    console.log('NombreGPT app initialized successfully');
+    console.log('EurOffersurv app initialized successfully');
 });
 
 // ========== UTILITY FUNCTIONS ==========
@@ -360,8 +553,10 @@ function showToast(message, type = 'info') {
         padding: 1rem 1.5rem;
         border-radius: 8px;
         box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-        z-index: 1000;
+        z-index: 10000;
         animation: slideIn 0.3s ease;
+        max-width: 400px;
+        font-size: 0.95rem;
     `;
     
     document.body.appendChild(toast);
@@ -370,7 +565,9 @@ function showToast(message, type = 'info') {
     setTimeout(() => {
         toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {
-            document.body.removeChild(toast);
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
         }, 300);
     }, 3000);
 }
@@ -416,168 +613,6 @@ window.scrollToLogin = scrollToLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
 window.showToast = showToast;
-
-// ACTUALIZACIÓN REGISTER.HTML
-
-/**
- * Maneja el registro de nuevos usuarios
- */
-function handleRegister() {
-    // Redirigir a la página de registro
-    window.location.href = 'register.html';
-}
-
-/**
- * Valida el formulario de registro
- */
-function validateRegistration(formData) {
-    const errors = [];
-    
-    if (!formData.firstName || formData.firstName.length < 2) {
-        errors.push('El nombre debe tener al menos 2 caracteres');
-    }
-    
-    if (!formData.email || !/^\S+@\S+\.\S+$/.test(formData.email)) {
-        errors.push('Ingresa un correo electrónico válido');
-    }
-    
-    if (!formData.password || formData.password.length < 8) {
-        errors.push('La contraseña debe tener al menos 8 caracteres');
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-        errors.push('Las contraseñas no coinciden');
-    }
-    
-    if (!formData.termsAccepted) {
-        errors.push('Debes aceptar los términos y condiciones');
-    }
-    
-    const birthDate = new Date(formData.birthDate);
-    const age = new Date().getFullYear() - birthDate.getFullYear();
-    if (age < 18) {
-        errors.push('Debes tener al menos 18 años');
-    }
-    
-    return errors;
-}
-
-// actualización 2
-
-// Añade esto a las funciones del archivo app.js existente
-
-/**
- * Formatea la fecha de nacimiento
- */
-function formatBirthDate(date) {
-    return new Date(date).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-}
-
-/**
- * Calcula la edad a partir de la fecha de nacimiento
- */
-function calculateAge(birthDate) {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-        age--;
-    }
-    
-    return age;
-}
-
-/**
- * Validación en tiempo real de formularios
- */
-function setupRealTimeValidation() {
-    const inputs = document.querySelectorAll('.registration-form input, .registration-form select');
-    
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            validateField(this);
-        });
-        
-        input.addEventListener('input', function() {
-            clearFieldError(this);
-        });
-    });
-}
-
-function validateField(field) {
-    const value = field.value.trim();
-    const fieldId = field.id;
-    
-    switch(fieldId) {
-        case 'email':
-            if (!/^\S+@\S+\.\S+$/.test(value)) {
-                showFieldError(field, 'Ingresa un correo válido');
-            }
-            break;
-        case 'password':
-            if (value.length < 8) {
-                showFieldError(field, 'Mínimo 8 caracteres');
-            }
-            break;
-        case 'confirmPassword':
-            const password = document.getElementById('password').value;
-            if (value !== password) {
-                showFieldError(field, 'Las contraseñas no coinciden');
-            }
-            break;
-        case 'birthDate':
-            if (value && calculateAge(value) < 18) {
-                showFieldError(field, 'Debes ser mayor de 18 años');
-            }
-            break;
-    }
-}
-
-function showFieldError(field, message) {
-    clearFieldError(field);
-    
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    errorDiv.style.color = 'var(--danger)';
-    errorDiv.style.fontSize = '0.85rem';
-    errorDiv.style.marginTop = '0.25rem';
-    
-    field.parentNode.appendChild(errorDiv);
-    field.classList.add('error');
-}
-
-function clearFieldError(field) {
-    const errorDiv = field.parentNode.querySelector('.error-message');
-    if (errorDiv) {
-        field.parentNode.removeChild(errorDiv);
-    }
-    field.classList.remove('error');
-}
-
-// ACTUALIZACIÓN DE DASHBOARD DINÁMICO
-
-document.getElementById('loginForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    // ⚠️ Simulación (luego va backend)
-    const fakeUser = {
-        name: email.split('@')[0], // ejemplo: juan@email.com → juan
-        email: email,
-        balance: 0
-    };
-
-    localStorage.setItem('user', JSON.stringify(fakeUser));
-
-    // Redirigir al dashboard
-    window.location.href = 'dashboard.html';
-});
+window.togglePassword = togglePassword;
+window.updatePasswordStrength = updatePasswordStrength;
+window.validatePasswordMatch = validatePasswordMatch;

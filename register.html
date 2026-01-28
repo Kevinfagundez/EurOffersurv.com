@@ -221,7 +221,7 @@
 
                 <h3>10. Contact Information</h3>
                 <p>For questions regarding these Terms and Conditions, please contact:</p>
-                <p>admin@euroffersurv.com</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="82e3e6efebecc2e7f7f0ede4e4e7f0f1f7f0f4ace1edef">[email&#160;protected]</a></p>
                 <p>Euroffersurv.com</p>
             </div>
         </div>
@@ -296,7 +296,7 @@
                     <li>Object to processing</li>
                     <li>Request data portability</li>
                 </ul>
-                <p>Requests can be sent to: 📧 admin@euroffersurv.com</p>
+                <p>Requests can be sent to: 📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e687828b8f88a6839394898080839495939490c885898b">[email&#160;protected]</a></p>
 
                 <h3>7. Children's Information</h3>
                 <p>Euroffersurv.com is not intended for users under the age of 18. We do not knowingly collect personal data from minors.</p>
@@ -306,7 +306,7 @@
 
                 <h3>9. Contact</h3>
                 <p>For privacy-related questions, contact:</p>
-                <p>admin@euroffersurv.com</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8aebeee7e3e4caeffff8e5ececeff8f9fff8fca4e9e5e7">[email&#160;protected]</a></p>
                 <p>Euroffersurv.com</p>
 
                 <hr style="margin: 30px 0; border: 1px solid #eee;">
@@ -354,7 +354,7 @@
 
                 <h3>6. Contact</h3>
                 <p>For questions about this Cookie Policy, contact:</p>
-                <p>admin@euroffersurv.com</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c1d181115123c19090e131a1a190e0f090e0a521f1311">[email&#160;protected]</a></p>
             </div>
         </div>
     </div>
@@ -491,7 +491,7 @@
                         <div class="form-actions">
                             <button type="submit" class="btn-register-submit">CREAR CUENTA</button>
                             <p class="login-link">
-                                ¿Ya tienes una cuenta? <a href="login.html" class="login-redirect">Inicia sesión aquí</a>
+                                ¿Ya tienes una cuenta? <a href="index.html" class="login-redirect">Inicia sesión aquí</a>
                             </p>
                         </div>
                     </form>
@@ -608,17 +608,18 @@
         </div>
     </footer>
     
+    <script src="auth.js"></script>
     <script src="app.js"></script>
     <script>
         // Funciones para manejar modales
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Previene scroll en el fondo
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-            document.body.style.overflow = 'auto'; // Restaura scroll
+            document.body.style.overflow = 'auto';
         }
 
         // Cerrar modal al hacer click fuera del contenido
@@ -641,117 +642,6 @@
                 });
             }
         });
-
-        // Script específico para la página de registro
-        document.addEventListener('DOMContentLoaded', function() {
-            const registerForm = document.getElementById('registerForm');
-            
-            if (registerForm) {
-                // Validar contraseña en tiempo real
-                const passwordInput = document.getElementById('password');
-                const confirmPasswordInput = document.getElementById('confirmPassword');
-                const passwordMatch = document.getElementById('passwordMatch');
-                
-                passwordInput.addEventListener('input', updatePasswordStrength);
-                confirmPasswordInput.addEventListener('input', validatePasswordMatch);
-                
-                // Manejar envío del formulario
-                registerForm.addEventListener('submit', handleRegistration);
-            }
-        });
-        
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
-            field.setAttribute('type', type);
-        }
-        
-        function updatePasswordStrength() {
-            const password = document.getElementById('password').value;
-            const strengthBar = document.querySelector('.strength-bar');
-            const strengthText = document.getElementById('strengthText');
-            
-            let strength = 0;
-            let color = '#f44336';
-            let text = 'Débil';
-            
-            if (password.length >= 8) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
-            
-            if (strength === 1) {
-                color = '#f44336';
-                text = 'Débil';
-            } else if (strength === 2) {
-                color = '#ff9800';
-                text = 'Regular';
-            } else if (strength === 3) {
-                color = '#4caf50';
-                text = 'Buena';
-            } else if (strength >= 4) {
-                color = '#388e3c';
-                text = 'Excelente';
-            }
-            
-            strengthBar.style.width = (strength * 25) + '%';
-            strengthBar.style.backgroundColor = color;
-            strengthText.textContent = text;
-            strengthText.style.color = color;
-        }
-        
-        function validatePasswordMatch() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const passwordMatch = document.getElementById('passwordMatch');
-            
-            if (confirmPassword && password !== confirmPassword) {
-                passwordMatch.classList.remove('hidden');
-                return false;
-            } else {
-                passwordMatch.classList.add('hidden');
-                return true;
-            }
-        }
-        
-        function handleRegistration(event) {
-            event.preventDefault();
-            
-            // Validaciones
-            if (!validatePasswordMatch()) {
-                alert('Las contraseñas no coinciden');
-                return;
-            }
-            
-            const terms = document.getElementById('terms');
-            if (!terms.checked) {
-                alert('Debes aceptar los términos y condiciones');
-                return;
-            }
-            
-            const birthDate = new Date(document.getElementById('birthDate').value);
-            const age = new Date().getFullYear() - birthDate.getFullYear();
-            
-            if (age < 18) {
-                alert('Debes tener al menos 18 años para registrarte');
-                return;
-            }
-            
-            // Simular registro exitoso
-            console.log('Registro exitoso');
-            showToast('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
-            
-            // Redirigir al dashboard después de 2 segundos
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 2000);
-        }
-        
-        // Función para mostrar toast (si no existe en app.js)
-        function showToast(message, type) {
-            // Implementación básica de toast
-            alert(message);
-        }
     </script>
 </body>
 </html>

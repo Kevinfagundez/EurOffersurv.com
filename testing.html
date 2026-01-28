@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA DE ADMINISTRACIÓN</title>
+    <style>
+        /* ================= RESET ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ================= VARIABLES ================= */
+        :root {
+            --primary: #4caf50;
+            --primary-dark: #388e3c;
+            --secondary: #2196f3;
+            --secondary-dark: #1976d2;
+            --accent: #ff9800;
+            --danger: #f44336;
+
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --text-white: #ffffff;
+
+            --bg-light: #f3f4f6;
+            --bg-white: #ffffff;
+
+            --border: #e5e7eb;
+
+            --radius: 14px;
+            --radius-sm: 10px;
+
+            --shadow: 0 8px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 16px 40px rgba(0,0,0,0.12);
+
+            --transition: all 0.25s ease;
+        }
+
+        /* ================= BODY ================= */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--secondary-dark), var(--secondary));
+            min-height: 100vh;
+            padding: 3rem 1.5rem;
+            color: var(--text-dark);
+        }
+
+        /* ================= CONTAINER ================= */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ================= HEADERS ================= */
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* ================= SECTIONS ================= */
+        .section {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--secondary-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .section p {
+            color: var(--text-light);
+        }
+
+        /* ================= BUTTONS ================= */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        button {
+            padding: 0.75rem 1.6rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        /* Primary */
+        .btn-primary {
+            background: var(--primary);
+            color: var(--text-white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Secondary */
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--text-white);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Info */
+        .btn-info {
+            background: var(--accent);
+            color: var(--text-white);
+        }
+
+        .btn-info:hover {
+            filter: brightness(0.95);
+            transform: translateY(-2px);
+        }
+
+        /* Danger */
+        .btn-danger {
+            background: var(--danger);
+            color: var(--text-white);
+        }
+
+        .btn-danger:hover {
+            filter: brightness(0.9);
+            transform: translateY(-2px);
+        }
+
+        /* ================= STATUS ================= */
+        .status {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #256029;
+            border-left: 5px solid var(--primary);
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #9a1c1c;
+            border-left: 5px solid var(--danger);
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #0b4fa2;
+            border-left: 5px solid var(--secondary);
+        }
+
+        /* ================= INFO BOX ================= */
+        .info-box {
+            background: var(--bg-white);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .info-box h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-dark);
+        }
+
+        .info-box pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        /* ================= USER LIST ================= */
+        .user-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .user-list li {
+            background: var(--bg-white);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            border: 1px solid var(--border);
+            margin-bottom: 0.75rem;
+        }
+
+        .user-list strong {
+            color: var(--secondary-dark);
+        }
+
+        /* ================= ALERT ================= */
+        .alert {
+            background: #fff8e1;
+            border: 1px solid #facc15;
+            color: #92400e;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ================= LINKS ================= */
+        .links {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .links a {
+            display: inline-block;
+            background: var(--secondary);
+            color: var(--text-white);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            margin-right: 0.75rem;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .links a:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SISTEMA DE AUTENTICACIÓN</h1>
+        <p class="subtitle">Panel de Administración de EurOffersurv</p>
+
+        <!-- Sección 1: Crear Usuarios Demo -->
+        <div class="section">
+            <h2>Crear Usuarios de Prueba</h2>
+            <p>Crea usuarios demo rápidamente para probar el sistema.</p>
+            <div class="button-group">
+                <button class="btn-primary" onclick="createDemoUser1()">Crear Usuario 1 (Juan)</button>
+                <button class="btn-primary" onclick="createDemoUser2()">Crear Usuario 2 (María)</button>
+                <button class="btn-primary" onclick="createDemoUser3()">Crear Usuario 3 (Carlos)</button>
+                <button class="btn-info" onclick="createMultipleUsers()">Crear 5 Usuarios Aleatorios</button>
+            </div>
+            <div id="createStatus"></div>
+        </div>
+
+        <!-- Sección 2: Ver Usuarios -->
+        <div class="section">
+            <h2>VER USUARIOS REGISTRADOS</h2>
+            <p>Muestra todos los usuarios guardados en LocalStorage.</p>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="showUsers()">VER USUARIOS</button>
+                <button class="btn-secondary" onclick="showCurrentUser()">VER USUARIOS ACTUALES</button>
+            </div>
+            <div id="usersStatus"></div>
+        </div>
+
+        <!-- Sección 3: Probar Login -->
+        <div class="section">
+            <h2>Probar Login Rápido</h2>
+            <p>Inicia sesión con un usuario demo (debe existir primero).</p>
+            <div class="button-group">
+                <button class="btn-secondary" onclick="quickLogin('juan@test.com', 'Test1234')">Login como Juan</button>
+                <button class="btn-secondary" onclick="quickLogin('maria@test.com', 'Test1234')">Login como María</button>
+                <button class="btn-secondary" onclick="quickLogin('carlos@test.com', 'Test1234')">Login como Carlos</button>
+            </div>
+            <div id="loginStatus"></div>
+        </div>
+
+        <!-- Sección 4: Limpiar Datos -->
+        <div class="section">
+            <h2>Limpiar Datos</h2>
+            <p>Elimina datos del sistema para empezar de cero.</p>
+            <div class="button-group">
+                <button class="btn-danger" onclick="clearCurrentUser()">Cerrar Sesión</button>
+                <button class="btn-danger" onclick="clearAllUsers()">Eliminar Todos los Usuarios</button>
+                <button class="btn-danger" onclick="clearEverything()">Limpiar Todo LocalStorage</button>
+            </div>
+            <div id="clearStatus"></div>
+        </div>
+
+        <!-- Sección 5: Info del Sistema -->
+        <div class="section">
+            <h2>Información del Sistema</h2>
+            <div class="info-box">
+                <h3>Estadísticas</h3>
+                <p id="stats">Cargando...</p>
+            </div>
+            <div class="info-box">
+                <h3>Estado del Sistema</h3>
+                <p id="systemStatus">Cargando...</p>
+            </div>
+        </div>
+
+        <!-- Enlaces -->
+        <div class="links">
+            <h2 style="margin-bottom: 1rem;">Navegación</h2>
+            <a href="index.html">Página Principal (Login)</a>
+            <a href="register.html">Página de Registro</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Actualizar estadísticas al cargar
+        updateStats();
+        updateSystemStatus();
+
+        // ===== CREAR USUARIOS DEMO =====
+
+        function createDemoUser1() {
+            const result = auth.register({
+                firstName: 'Juan',
+                lastName: 'Pérez',
+                email: 'juan@test.com',
+                password: 'Test1234',
+                confirmPassword: 'Test1234',
+                birthDate: '1990-05-15',
+                country: 'Uruguay',
+                gender: 'male',
+                termsAccepted: true
+            });
+            showStatus('createStatus', result);
+            updateStats();
+        }
+
+        function createDemoUser2() {
+            const result = auth.register({
+                firstName: 'María',
+                lastName: 'García',
+                email: 'maria@test.com',
+                password: 'Test1234',
+                confirmPassword: 'Test1234',
+                birthDate: '1992-08-20',
+                country: 'España',
+                gender: 'female',
+                termsAccepted: true
+            });
+            showStatus('createStatus', result);
+            updateStats();
+        }
+
+        function createDemoUser3() {
+            const result = auth.register({
+                firstName: 'Carlos',
+                lastName: 'Rodríguez',
+                email: 'carlos@test.com',
+                password: 'Test1234',
+                confirmPassword: 'Test1234',
+                birthDate: '1988-12-10',
+                country: 'Argentina',
+                gender: 'male',
+                termsAccepted: true
+            });
+            showStatus('createStatus', result);
+            updateStats();
+        }
+
+        function createMultipleUsers() {
+            const names = [
+                {firstName: 'Ana', lastName: 'Martínez', email: 'ana@test.com'},
+                {firstName: 'Pedro', lastName: 'López', email: 'pedro@test.com'},
+                {firstName: 'Laura', lastName: 'Fernández', email: 'laura@test.com'},
+                {firstName: 'Diego', lastName: 'González', email: 'diego@test.com'},
+                {firstName: 'Sofia', lastName: 'Sánchez', email: 'sofia@test.com'}
+            ];
+
+            let created = 0;
+            names.forEach(user => {
+                const result = auth.register({
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    password: 'Test1234',
+                    confirmPassword: 'Test1234',
+                    birthDate: '1995-01-01',
+                    country: 'Uruguay',
+                    gender: 'other',
+                    termsAccepted: true
+                });
+                if (result.success) created++;
+            });
+
+            showStatus('createStatus', {
+                success: true,
+                message: `Se crearon ${created} usuarios de ${names.length}`
+            });
+            updateStats();
+        }
+
+        // ===== VER USUARIOS =====
+
+        function showUsers() {
+            const users = auth.getAllUsers();
+            const container = document.getElementById('usersStatus');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div class="status info">No hay usuarios registrados</div>';
+                return;
+            }
+
+            let html = `<div class="status success">Total de usuarios: ${users.length}</div>`;
+            html += '<ul class="user-list">';
+            users.forEach((user, index) => {
+                html += `
+                    <li>
+                        <strong>${index + 1}. ${user.firstName} ${user.lastName}</strong><br>
+                        📧 ${user.email}<br>
+                        💰 Balance: $${user.balance.toFixed(2)} USD<br>
+                        📅 Registrado: ${new Date(user.registeredAt).toLocaleDateString()}
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function showCurrentUser() {
+            const user = auth.getCurrentUser();
+            const container = document.getElementById('usersStatus');
+            
+            if (!user) {
+                container.innerHTML = '<div class="status error">No hay sesión activa</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="status success">Usuario actual:</div>
+                <div class="info-box">
+                    <h3>${user.firstName} ${user.lastName}</h3>
+                    <pre>${JSON.stringify(user, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // ===== LOGIN RÁPIDO =====
+
+        function quickLogin(email, password) {
+            const result = auth.login(email, password);
+            showStatus('loginStatus', result);
+            if (result.success) {
+                setTimeout(() => {
+                    if (confirm('Login exitoso. ¿Ir al dashboard?')) {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 500);
+            }
+            updateSystemStatus();
+        }
+
+        // ===== LIMPIAR DATOS =====
+
+        function clearCurrentUser() {
+            const result = auth.logout();
+            showStatus('clearStatus', result);
+            updateStats();
+            updateSystemStatus();
+        }
+
+        function clearAllUsers() {
+            if (confirm('¿Estás seguro? Esto eliminará TODOS los usuarios registrados.')) {
+                localStorage.removeItem('euroffersurv_users');
+                localStorage.removeItem('euroffersurv_current_user');
+                auth.initializeStorage();
+                showStatus('clearStatus', {
+                    success: true,
+                    message: 'Todos los usuarios han sido eliminados'
+                });
+                updateStats();
+                updateSystemStatus();
+            }
+        }
+
+        function clearEverything() {
+            if (confirm('¿ELIMINAR TODO el LocalStorage? Esto no se puede deshacer.')) {
+                localStorage.clear();
+                showStatus('clearStatus', {
+                    success: true,
+                    message: 'Todo el LocalStorage ha sido limpiado'
+                });
+                updateStats();
+                updateSystemStatus();
+            }
+        }
+
+        // ===== UTILIDADES =====
+
+        function showStatus(elementId, result) {
+            const container = document.getElementById(elementId);
+            const statusClass = result.success ? 'success' : 'error';
+            container.innerHTML = `
+                <div class="status ${statusClass}">
+                    ${result.message}
+                </div>
+            `;
+        }
+
+        function updateStats() {
+            const users = auth.getAllUsers();
+            const currentUser = auth.getCurrentUser();
+            
+            document.getElementById('stats').innerHTML = `
+                <strong>Total de usuarios:</strong> ${users.length}<br>
+                <strong>Usuario activo:</strong> ${currentUser ? currentUser.email : 'Ninguno'}<br>
+                <strong>Estado:</strong> ${currentUser ? '✅ Sesión activa' : '❌ Sin sesión'}
+            `;
+        }
+
+        function updateSystemStatus() {
+            const isAuth = auth.isAuthenticated();
+            const currentUser = auth.getCurrentUser();
+            
+            document.getElementById('systemStatus').innerHTML = `
+                <strong>Sistema de autenticación:</strong> ✅ Operativo<br>
+                <strong>LocalStorage:</strong> ✅ Disponible<br>
+                <strong>Autenticado:</strong> ${isAuth ? '✅ Sí' : '❌ No'}<br>
+                <strong>Usuario actual:</strong> ${currentUser ? currentUser.firstName + ' ' + currentUser.lastName : 'Ninguno'}
+            `;
+        }
+
+        // Auto-actualizar cada 3 segundos
+        setInterval(() => {
+            updateStats();
+            updateSystemStatus();
+        }, 3000);
+    </script>
+</body>
+</html>

@@ -1036,20 +1036,9 @@
 
             console.log('Dashboard de EurOffersurv.com cargado exitosamente');
         });
-
-        document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-
-        // Si no hay sesión → volver al login
-        if (!user) {
-            window.location.href = 'index.html';
-            return;
-        }
-
-        document.getElementById('userName').textContent = user.name;
-        document.getElementById('userBalance').textContent = `$${user.balance} USD`;
-    });
-
     </script>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
