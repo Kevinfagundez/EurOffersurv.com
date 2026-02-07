@@ -1,13 +1,15 @@
 <?php
 /**
  * API Endpoint - Login de usuarios
- * POST /backend/api/login.php
+ * POST /api/login.php
  */
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/_cors.php';
+
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../classes/User.php';
 
@@ -33,7 +35,6 @@ if (!empty($result['success'])) {
     $_SESSION['user_id'] = $result['user']['user_id'];
     $_SESSION['email'] = $result['user']['email'];
 
-    // ✅ IMPORTANTE: NO regeneramos ID por ahora (para descartar líos de cookie)
     session_write_close();
 
     echo json_encode([

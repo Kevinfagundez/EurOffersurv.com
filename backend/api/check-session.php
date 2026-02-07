@@ -1,13 +1,15 @@
 <?php
 /**
  * API Endpoint - Verificar sesión actual
- * GET /backend/api/check-session.php
+ * GET /api/check-session.php
  */
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/_cors.php';
+
 session_start();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
 
 $debug = [
     'session_id' => session_id(),
