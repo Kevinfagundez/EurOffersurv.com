@@ -78,7 +78,8 @@ class User {
             error_log("Error en registro: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Error al registrar usuario. Por favor, intente nuevamente.'
+                'message' => 'Error al registrar usuario. Por favor, intente nuevamente.',
+                'debug' => $e->getMessage()
             ];
         }
     }
