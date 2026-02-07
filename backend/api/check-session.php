@@ -34,7 +34,10 @@ if (!isset($_COOKIE[session_name()])) {
     exit;
 }
 
-if (empty($_SESSION['logged_in']) || empty($_SESSION['user_id'])) {
+// ✅ FIX: NO usar empty($_SESSION['user_id']) porque user_id=0 hace empty()=true
+$uid = (int)($_SESSION['user_id'] ?? 0);
+
+if (empty($_SESSION['logged_in']) || $uid <= 0) {
     echo json_encode([
         'authenticated' => false,
         'reason' => 'no_session_data',
@@ -46,7 +49,7 @@ if (empty($_SESSION['logged_in']) || empty($_SESSION['user_id'])) {
 require_once __DIR__ . '/../classes/User.php';
 
 $user = new User();
-$userId = (int)$_SESSION['user_id'];
+$userId = $uid;
 $userData = $user->getUserById($userId);
 
 if (!$userData) {
