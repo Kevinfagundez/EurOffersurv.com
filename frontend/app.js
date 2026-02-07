@@ -48,6 +48,10 @@ async function handleLogin(event) {
 
   if (result.success) {
     showToast(result.message || "Login exitoso", "success");
+
+    // ✅ IMPORTANTE: marca "login reciente" para evitar el rebote del dashboard
+    auth.markJustLoggedIn();
+
     setTimeout(() => {
       window.location.href = ROUTES.dashboard;
     }, 250);
@@ -137,11 +141,22 @@ async function handleLogout() {
 // ========== DASHBOARD FUNCTIONS ==========
 
 async function initDashboard() {
-  // ✅ check real contra el backend
-  const user = await auth.getCurrentUser();
+  // ✅ FIX CLAVE: NO redirigir inmediatamente.
+  // Hacemos reintentos reales contra backend para evitar el "me bota".
+  // Si hay login reciente, damos un "grace period" para que la cookie/sesión quede lista.
+  const session = await auth.requireAuth({
+    redirectTo: ROUTES.index,
+    retries: 8,        // ~8 intentos
+    delayMs: 450,      // cada 450ms -> ~3.6s total
+    graceMs: 5000      // si vienes de login reciente, hasta 5s sin botar
+  });
 
+  if (!session.ok) return;
+
+  const user = session.user || null;
   if (!user) {
-    window.location.href = '/index.html';
+    // fallback ultra defensivo (no debería pasar)
+    window.location.href = ROUTES.index;
     return;
   }
 
@@ -151,26 +166,9 @@ async function initDashboard() {
   initWithdraw(user);
   initLogoutModal();
 
-  if (typeof window.initTheoremReach === 'function') {
+  if (typeof window.initTheoremReach === "function") {
     window.initTheoremReach();
   }
-}
-
-function normalizeUser(user) {
-  if (!user || typeof user !== "object") return user;
-
-  if (user.first_name && !user.firstName) user.firstName = user.first_name;
-  if (user.last_name && !user.lastName) user.lastName = user.last_name;
-
-  if (user.total_earned !== undefined && user.totalEarned === undefined) {
-    user.totalEarned = user.total_earned;
-  }
-
-  if (user.completed_offers !== undefined && user.completedOffers === undefined) {
-    user.completedOffers = user.completed_offers;
-  }
-
-  return user;
 }
 
 function updateDashboardUserInfo(user) {
@@ -180,7 +178,7 @@ function updateDashboardUserInfo(user) {
 
   document.querySelectorAll(".user-name").forEach((el) => (el.textContent = fullName));
 
-  // Si tu check-session no devuelve balance, esto se queda en 0 (ok)
+  // balance
   if (user.balance !== undefined && user.balance !== null) {
     const bal = Number(user.balance);
     if (!Number.isNaN(bal)) {
@@ -347,7 +345,6 @@ function seedDemoNotifications(user) {
       message: `Hola ${name}, tu cuenta está lista. ¡Puedes comenzar a completar ofertas!`,
       read: false,
       created_at: new Date(now - 60_000).toISOString(),
-      // ✅ FIX: sin /frontend/
       action: { type: "link", href: ROUTES.dashboard },
     },
     {
@@ -448,7 +445,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // LOGIN
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
-    // ✅ FIX: sin /frontend/
     if (auth.redirectIfAuthenticated) auth.redirectIfAuthenticated(ROUTES.dashboard);
     loginForm.addEventListener("submit", handleLogin);
   }
