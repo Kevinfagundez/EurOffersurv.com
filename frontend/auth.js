@@ -3,12 +3,17 @@
 // Frontend JS conectado a Backend PHP (Render)
 // ========================================
 
-const API_BASE = "https://euroffersurv-api.onrender.com/api";
+// ✅ No usar const global "API_BASE" (choca fácil con app.js)
+// Guardamos la base en window para que sea única y reutilizable
+window.EUR_API_BASE = window.EUR_API_BASE || "https://euroffersurv-api.onrender.com/api";
+
+function getApiBase() {
+  return window.EUR_API_BASE;
+}
 
 class AuthSystem {
   constructor() {
-    // ✅ En producción SIEMPRE usamos el backend real
-    this.API_BASE = API_BASE;
+    this.API_BASE = getApiBase();
   }
 
   // =========================
@@ -24,16 +29,12 @@ class AuthSystem {
       });
 
       const text = await response.text();
-      let result;
-
       try {
-        result = JSON.parse(text);
+        return JSON.parse(text);
       } catch {
         console.error("Respuesta inválida del servidor:", text);
-        return { success: false, message: "Error interno del servidor" };
+        return { success: false, message: "Respuesta inválida del servidor" };
       }
-
-      return result;
     } catch (error) {
       console.error("Error de conexión:", error);
       return { success: false, message: "No se pudo conectar con el servidor" };
@@ -54,7 +55,6 @@ class AuthSystem {
 
       const text = await response.text();
       let result;
-
       try {
         result = JSON.parse(text);
       } catch {
@@ -63,9 +63,11 @@ class AuthSystem {
       }
 
       if (result.success && result.user) {
-        // cache local (no es la fuente real)
         localStorage.setItem("euroffersurv_logged_in", "true");
         localStorage.setItem("euroffersurv_user_id", result.user.user_id);
+      } else {
+        localStorage.removeItem("euroffersurv_logged_in");
+        localStorage.removeItem("euroffersurv_user_id");
       }
 
       return result;
@@ -100,7 +102,9 @@ class AuthSystem {
   async getCurrentUser() {
     try {
       const response = await fetch(`${this.API_BASE}/check-session.php`, {
+        method: "GET",
         credentials: "include",
+        headers: { "Accept": "application/json" },
       });
 
       if (!response.ok) return null;
@@ -152,7 +156,6 @@ class AuthSystem {
       window.location.href = redirectTo;
       return true;
     }
-
     localStorage.removeItem("euroffersurv_logged_in");
     localStorage.removeItem("euroffersurv_user_id");
     return false;
@@ -166,7 +169,6 @@ class AuthSystem {
       window.location.href = redirectTo;
       return false;
     }
-
     localStorage.setItem("euroffersurv_logged_in", "true");
     localStorage.setItem("euroffersurv_user_id", user.user_id);
     return true;
@@ -174,10 +176,9 @@ class AuthSystem {
 }
 
 // =========================
-// INSTANCIA GLOBAL
+// INSTANCIA GLOBAL (no romper si se carga dos veces)
 // =========================
-const auth = new AuthSystem();
-window.auth = auth;
+window.auth = window.auth || new AuthSystem();
 
 // =========================
 // FORMULARIO DE REGISTRO
@@ -197,28 +198,28 @@ document.addEventListener("DOMContentLoaded", () => {
       birthDate: document.getElementById("birthDate").value,
       newsletter: document.getElementById("newsletter")?.checked || false,
 
-      // ✅ mínimo para tu DB (si no tenés campo en el form, el backend pone default)
+      // opcionales (tu backend pone default si faltan)
       country: document.getElementById("country")?.value?.trim() || undefined,
       city: document.getElementById("city")?.value?.trim() || undefined,
       gender: document.getElementById("gender")?.value || undefined,
     };
 
-    if (!auth.isValidEmail(userData.email)) {
+    if (!window.auth.isValidEmail(userData.email)) {
       alert("Email inválido");
       return;
     }
 
-    if (!auth.isValidPassword(userData.password)) {
+    if (!window.auth.isValidPassword(userData.password)) {
       alert("La contraseña debe tener al menos 8 caracteres");
       return;
     }
 
-    if (auth.calculateAge(userData.birthDate) < 18) {
+    if (window.auth.calculateAge(userData.birthDate) < 18) {
       alert("Debes ser mayor de 18 años");
       return;
     }
 
-    const result = await auth.register(userData);
+    const result = await window.auth.register(userData);
 
     if (result.success) {
       alert("Registro exitoso");
