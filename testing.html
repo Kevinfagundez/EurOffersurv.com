@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing - EurOffersurv</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2196f3;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #2196f3;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        button.success {
+            background: #4caf50;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+        }
+        .result.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .result.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .result.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.ok {
+            background: #4caf50;
+            color: white;
+        }
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+        .status.pending {
+            background: #ff9800;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Testing Suite - EurOffersurv</h1>
+    <p>Esta página te permite testear todos los componentes del sistema.</p>
+
+    <!-- Test de Base de Datos -->
+    <div class="test-section">
+        <h2>1. Test de Conexión a Base de Datos</h2>
+        <button onclick="testDatabaseConnection()">🗄️  Probar Conexión</button>
+        <div id="db-result"></div>
+    </div>
+
+    <!-- Test de Registro -->
+    <div class="test-section">
+        <h2>2. Test de Registro de Usuario</h2>
+        <button onclick="testRegister()">📝 Crear Usuario de Prueba</button>
+        <button class="danger" onclick="testRegisterDuplicate()">⚠️  Probar Duplicado</button>
+        <div id="register-result"></div>
+    </div>
+
+    <!-- Test de Login -->
+    <div class="test-section">
+        <h2>3. Test de Login</h2>
+        <button onclick="testLogin()">🔑 Login Exitoso</button>
+        <button class="danger" onclick="testLoginFail()">❌ Login Fallido</button>
+        <div id="login-result"></div>
+    </div>
+
+    <!-- Test de Sesión -->
+    <div class="test-section">
+        <h2>4. Test de Verificación de Sesión</h2>
+        <button onclick="testCheckSession()">✅ Verificar Sesión</button>
+        <button onclick="testGetUserData()">📊 Obtener Datos de Usuario</button>
+        <div id="session-result"></div>
+    </div>
+
+    <!-- Test de Postback -->
+    <div class="test-section">
+        <h2>5. Test de Postback (TheoremReach)</h2>
+        <p><strong>⚠️  IMPORTANTE:</strong> Antes de probar, asegúrate de tener un usuario creado y su user_id.</p>
+        <input type="text" id="testUserId" placeholder="user_id (ej: user_1234567890_abc)" style="width: 300px; padding: 8px;">
+        <br><br>
+        <button onclick="testPostback()">💰 Simular Recompensa ($1.50)</button>
+        <button onclick="testPostbackDuplicate()">🔄 Probar Duplicado</button>
+        <div id="postback-result"></div>
+    </div>
+
+    <!-- Test de TheoremReach -->
+    <div class="test-section">
+        <h2>6. Test de Integración TheoremReach</h2>
+        <button onclick="testTheoremReachScript()">📡 Cargar Script de TheoremReach</button>
+        <button onclick="testTheoremReachInit()">🎯 Inicializar TheoremReach</button>
+        <div id="theoremreach-result"></div>
+        <div id="theoremreach_offerwall" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- Test de Logout -->
+    <div class="test-section">
+        <h2>7. Test de Logout</h2>
+        <button class="danger" onclick="testLogout()">🚪 Cerrar Sesión</button>
+        <div id="logout-result"></div>
+    </div>
+
+    <!-- Resumen General -->
+    <div class="test-section">
+        <h2>📋 Resumen de Tests</h2>
+        <div id="summary">
+            <p>Ejecuta los tests para ver el resumen.</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuración
+        const API_BASE = '/backend/api';
+        const TEST_EMAIL = 'test_' + Date.now() + '@test.com';
+        const TEST_PASSWORD = 'Test123456!';
+        let testUserId = null;
+        let testResults = {
+            database: null,
+            register: null,
+            login: null,
+            session: null,
+            postback: null,
+            theoremreach: null,
+            logout: null
+        };
+
+        // Función auxiliar para mostrar resultados
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        // Test 1: Conexión a Base de Datos
+        async function testDatabaseConnection() {
+            showResult('db-result', 'Probando conexión...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + '/check-session.php');
+                
+                if (response.ok || response.status === 401) {
+                    showResult('db-result', '✅ Conexión a base de datos OK\nEl backend está funcionando correctamente.', 'success');
+                    testResults.database = true;
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+            } catch (error) {
+                showResult('db-result', '❌ Error de conexión:\n' + error.message + '\n\nVerifica que:\n1. PostgreSQL esté corriendo\n2. Las credenciales en database.php sean correctas\n3. El backend esté accesible', 'error');
+                testResults.database = false;
+            }
+        }
+
+        // Test 2: Registro
+        async function testRegister() {
+            showResult('register-result', 'Registrando usuario de prueba...', 'info');
+            
+            const userData = {
+                firstName: 'Test',
+                lastName: 'User',
+                email: TEST_EMAIL,
+                password: TEST_PASSWORD,
+                birthDate: '1990-01-01',
+                country: 'Spain',
+                city: 'Madrid',
+                gender: 'not-specified',
+                newsletter: false
+            };
+
+            try {
+                const response = await fetch(API_BASE + '/register.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    testUserId = result.user_id;
+                    document.getElementById('testUserId').value = testUserId;
+                    showResult('register-result', 
+                        `✅ Usuario registrado exitosamente\n\nEmail: ${TEST_EMAIL}\nPassword: ${TEST_PASSWORD}\nUser ID: ${testUserId}\n\nPuedes usar estos datos para login.`, 
+                        'success'
+                    );
+                    testResults.register = true;
+                } else {
+                    showResult('register-result', '❌ Error en registro:\n' + result.message, 'error');
+                    testResults.register = false;
+                }
+            } catch (error) {
+                showResult('register-result', '❌ Error:\n' + error.message, 'error');
+                testResults.register = false;
+            }
+        }
+
+        async function testRegisterDuplicate() {
+            showResult('register-result', 'Intentando registrar email duplicado...', 'info');
+            
+            const userData = {
+                firstName: 'Test',
+                lastName: 'Duplicate',
+                email: TEST_EMAIL, // Email ya usado
+                password: 'Test123456!',
+                birthDate: '1990-01-01',
+                country: 'Spain'
+            };
+
+            try {
+                const response = await fetch(API_BASE + '/register.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+
+                if (!result.success && result.message.includes('ya está registrado')) {
+                    showResult('register-result', 
+                        '✅ Validación de duplicados funciona correctamente\n\n' + result.message, 
+                        'success'
+                    );
+                } else {
+                    showResult('register-result', 
+                        '⚠️  El sistema debería rechazar este email duplicado', 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('register-result', '❌ Error:\n' + error.message, 'error');
+            }
+        }
+
+        // Test 3: Login
+        async function testLogin() {
+            if (!TEST_EMAIL) {
+                showResult('login-result', '⚠️  Primero crea un usuario de prueba', 'error');
+                return;
+            }
+
+            showResult('login-result', 'Intentando login...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + '/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: TEST_EMAIL,
+                        password: TEST_PASSWORD
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult('login-result', 
+                        `✅ Login exitoso\n\nUsuario: ${result.user.first_name} ${result.user.last_name}\nEmail: ${result.user.email}\nBalance: $${result.user.balance}`, 
+                        'success'
+                    );
+                    testResults.login = true;
+                } else {
+                    showResult('login-result', '❌ Error en login:\n' + result.message, 'error');
+                    testResults.login = false;
+                }
+            } catch (error) {
+                showResult('login-result', '❌ Error:\n' + error.message, 'error');
+                testResults.login = false;
+            }
+        }
+
+        async function testLoginFail() {
+            showResult('login-result', 'Probando login con credenciales incorrectas...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + '/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'noexiste@test.com',
+                        password: 'wrongpassword'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    showResult('login-result', 
+                        '✅ Validación de credenciales funciona\n\n' + result.message, 
+                        'success'
+                    );
+                } else {
+                    showResult('login-result', 
+                        '⚠️  El sistema debería rechazar credenciales incorrectas', 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('login-result', '❌ Error:\n' + error.message, 'error');
+            }
+        }
+
+        // Test 4: Sesión
+        async function testCheckSession() {
+            showResult('session-result', 'Verificando sesión...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + '/check-session.php', {
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                if (result.authenticated) {
+                    showResult('session-result', 
+                        `✅ Sesión activa\n\nUsuario: ${result.user.first_name} ${result.user.last_name}\nUser ID: ${result.user.user_id}`, 
+                        'success'
+                    );
+                    testResults.session = true;
+                } else {
+                    showResult('session-result', '⚠️  No hay sesión activa. Haz login primero.', 'error');
+                    testResults.session = false;
+                }
+            } catch (error) {
+                showResult('session-result', '❌ Error:\n' + error.message, 'error');
+                testResults.session = false;
+            }
+        }
+
+        async function testGetUserData() {
+            showResult('session-result', 'Obteniendo datos completos...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + '/user-data.php', {
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult('session-result', 
+                        `✅ Datos obtenidos correctamente\n\n` +
+                        `Usuario: ${result.user.first_name} ${result.user.last_name}\n` +
+                        `Balance: $${result.user.balance}\n` +
+                        `Total ganado: $${result.user.total_earned}\n` +
+                        `Ofertas completadas: ${result.user.completed_offers}\n` +
+                        `Transacciones recientes: ${result.recent_transactions.length}`,
+                        'success'
+                    );
+                } else {
+                    showResult('session-result', '❌ Error:\n' + result.message, 'error');
+                }
+            } catch (error) {
+                showResult('session-result', '❌ Error:\n' + error.message, 'error');
+            }
+        }
+
+        // Test 5: Postback
+        async function testPostback() {
+            const userId = document.getElementById('testUserId').value || testUserId;
+            
+            if (!userId) {
+                showResult('postback-result', '⚠️  Ingresa un user_id válido primero', 'error');
+                return;
+            }
+
+            showResult('postback-result', 'Simulando recompensa de TheoremReach...', 'info');
+            
+            const transactionId = 'tx_test_' + Date.now();
+            const reward = 150; // $1.50 en centavos
+
+            try {
+                const url = `${API_BASE}/postback.php?user_id=${userId}&reward=${reward}&transaction_id=${transactionId}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.status === 'ok') {
+                    showResult('postback-result', 
+                        `✅ Postback procesado exitosamente\n\n` +
+                        `User ID: ${result.user_id}\n` +
+                        `Recompensa: $${result.reward}\n` +
+                        `Transaction ID: ${result.transaction_id}\n\n` +
+                        `Verifica en la base de datos que:\n` +
+                        `1. La transacción se registró en la tabla 'transactions'\n` +
+                        `2. El balance del usuario se actualizó`,
+                        'success'
+                    );
+                    testResults.postback = true;
+                } else {
+                    showResult('postback-result', '❌ Error:\n' + result.message, 'error');
+                    testResults.postback = false;
+                }
+            } catch (error) {
+                showResult('postback-result', '❌ Error:\n' + error.message, 'error');
+                testResults.postback = false;
+            }
+        }
+
+        async function testPostbackDuplicate() {
+            const userId = document.getElementById('testUserId').value || testUserId;
+            
+            if (!userId) {
+                showResult('postback-result', '⚠️  Ingresa un user_id válido primero', 'error');
+                return;
+            }
+
+            showResult('postback-result', 'Probando duplicado...', 'info');
+            
+            const transactionId = 'tx_duplicate_test';
+            const reward = 100;
+
+            try {
+                // Primer intento
+                let url = `${API_BASE}/postback.php?user_id=${userId}&reward=${reward}&transaction_id=${transactionId}`;
+                await fetch(url);
+
+                // Segundo intento (debería detectar duplicado)
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.status === 'ok' && result.duplicate) {
+                    showResult('postback-result', 
+                        `✅ Detección de duplicados funciona\n\n` +
+                        `El sistema correctamente detectó que esta transacción ya fue procesada.`,
+                        'success'
+                    );
+                } else {
+                    showResult('postback-result', 
+                        `⚠️  El sistema debería detectar transacciones duplicadas`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('postback-result', '❌ Error:\n' + error.message, 'error');
+            }
+        }
+
+        // Test 6: TheoremReach
+        function testTheoremReachScript() {
+            showResult('theoremreach-result', 'Cargando script de TheoremReach...', 'info');
+            
+            const script = document.createElement('script');
+            script.src = 'https://theoremreach.com/static/js/web_offerwall.js';
+            
+            script.onload = function() {
+                showResult('theoremreach-result', 
+                    '✅ Script de TheoremReach cargado correctamente\n\nAhora puedes inicializarlo con un user_id.',
+                    'success'
+                );
+                testResults.theoremreach = true;
+            };
+            
+            script.onerror = function() {
+                showResult('theoremreach-result', 
+                    '❌ Error al cargar el script de TheoremReach\n\nVerifica tu conexión a internet.',
+                    'error'
+                );
+                testResults.theoremreach = false;
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        function testTheoremReachInit() {
+            const userId = document.getElementById('testUserId').value || testUserId;
+            
+            if (!userId) {
+                showResult('theoremreach-result', '⚠️  Necesitas un user_id válido', 'error');
+                return;
+            }
+
+            if (typeof TheoremReach === 'undefined') {
+                showResult('theoremreach-result', '⚠️  Primero carga el script de TheoremReach', 'error');
+                return;
+            }
+
+            try {
+                TheoremReach.init({
+                    app_id: 24592,
+                    user_id: userId
+                });
+
+                showResult('theoremreach-result', 
+                    `✅ TheoremReach inicializado\n\nApp ID: 24592\nUser ID: ${userId}\n\nSi ves la offerwall abajo, ¡todo funciona!`,
+                    'success'
+                );
+                testResults.theoremreach = true;
+            } catch (error) {
+                showResult('theoremreach-result', 
+                    '❌ Error al inicializar:\n' + error.message,
+                    'error'
+                );
+                testResults.theoremreach = false;
+            }
+        }
+
+        // Test 7: Logout
+        async function testLogout() {
+            showResult('logout-result', 'Cerrando sesión...', 'info');
+            
+            try {
+                const response = await fetch(API_BASE + '/logout.php', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult('logout-result', 
+                        '✅ Sesión cerrada correctamente\n\nPuedes verificar con "Verificar Sesión" que ya no hay sesión activa.',
+                        'success'
+                    );
+                    testResults.logout = true;
+                } else {
+                    showResult('logout-result', '❌ Error:\n' + result.message, 'error');
+                    testResults.logout = false;
+                }
+            } catch (error) {
+                showResult('logout-result', '❌ Error:\n' + error.message, 'error');
+                testResults.logout = false;
+            }
+        }
+
+        // Actualizar resumen
+        function updateSummary() {
+            const passed = Object.values(testResults).filter(v => v === true).length;
+            const failed = Object.values(testResults).filter(v => v === false).length;
+            const pending = Object.values(testResults).filter(v => v === null).length;
+
+            let html = '<p><strong>Estado de los Tests:</strong></p>';
+            html += `<p>✅ Pasados: ${passed} | ❌ Fallidos: ${failed} | ⏳ Pendientes: ${pending}</p>`;
+            html += '<ul style="list-style: none; padding: 0;">';
+            
+            for (const [key, value] of Object.entries(testResults)) {
+                const status = value === true ? 'ok' : value === false ? 'error' : 'pending';
+                const label = value === true ? 'OK' : value === false ? 'ERROR' : 'PENDIENTE';
+                html += `<li><span class="status ${status}">${label}</span> ${key.toUpperCase()}</li>`;
+            }
+            
+            html += '</ul>';
+
+            document.getElementById('summary').innerHTML = html;
+        }
+
+        // Actualizar resumen cada segundo
+        setInterval(updateSummary, 1000);
+        updateSummary();
+    </script>
+</body>
+</html>

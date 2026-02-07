@@ -1,0 +1,50 @@
+# ========================================
+# CONFIGURACIÓN APACHE - EUROFFERSURV
+# ========================================
+
+# Habilitar módulo de reescritura
+RewriteEngine On
+
+# Configuración de sesiones PHP
+php_value session.cookie_httponly 1
+php_value session.cookie_secure 0
+php_value session.use_strict_mode 1
+
+# Configuración de headers de seguridad
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-XSS-Protection "1; mode=block"
+
+# Permitir CORS para el dominio (ajustar en producción)
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type"
+
+# Proteger archivos de configuración
+<FilesMatch "\.(env|sql|log)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# No mostrar listado de directorios
+Options -Indexes
+
+# Redireccionar errores
+ErrorDocument 404 /index.html
+ErrorDocument 500 /index.html
+
+# Comprimir archivos para mejor rendimiento
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Cachear archivos estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>

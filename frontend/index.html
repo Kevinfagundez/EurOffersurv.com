@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EurOffersurv</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="landing-page">
+    <!-- Header -->
+    <header class="header-landing">
+        <div class="container-landing">
+            <div class="logo"><span style="color:green">Eur</span><span style="color:blue">Offersurv.com</span></div>
+            <nav class="nav-landing">
+                <button class="btn-secondary" onclick="scrollToLogin()">Iniciar sesión</button>
+                <button class="btn-primary" onclick="window.location.href='register.html'">Registrarse</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container-landing">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>GANA DINERO
+                        <p>completando ofertas y encuestas online</p>
+                    </h1>
+                    <p class="hero-subtitle">Disponible en Europa y otros países.</p>
+                    <button class="btn-cta" onclick="scrollToLogin()">EMPEZAR AHORA</button>
+                </div>
+
+                <div class="hero-image">
+                    <div class="placeholder-image">
+                        <img src="img/img-login.png" alt="imagen principal" style="width: 500px; height: auto; border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section class="how-it-works">
+        <div class="container-landing">
+            <h2>¿CÓMO FUNCIONA?</h2>
+            <p class="section-subtitle">Empieza a ganar en 3 simples pasos</p>
+            <div class="steps">
+                <div class="step">
+
+                    <div class="step-icon">
+                        <img src="img/registrategratis.png" width="250" height="140" style="border-radius: 10px;">
+                    </div>
+
+                    <h3>Regístrate gratis</h3>
+                    <p>Crea tu cuenta gratis.</p>
+                </div>
+
+                <div class="step">
+
+                    <div class="step-icon">
+                        <img src="img/completaofertas.png" width="250" height="140" style="border-radius: 10px;">
+                    </div>
+
+                    <h3>Completa ofertas</h3>
+                    <p>Realiza encuestas y tareas.</p>
+                </div>
+
+                <div class="step">
+
+                    <div class="step-icon">
+                        <img src="img/ganarecompensas.png" width="250" height="140" style="border-radius: 10px;">
+                    </div>
+
+                    <h3>Gana recompensas</h3>
+                    <p>Recibe tus recompensas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOGIN -->
+    <section class="login-section" id="login-section">
+        <div class="container-landing">
+            <div class="login-container">
+                <div class="login-box">
+                    <h2>INICIAR SESIÓN</h2>
+                    <p class="login-subtitle">Accede a tu cuenta y empieza a ganar</p>
+                    
+                    <form id="loginForm" class="login-form">
+                        <div class="form-group">
+                            <label for="email">Correo electrónico</label>
+                            <input type="email" id="email" placeholder="tu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Contraseña</label>
+                            <input type="password" id="password" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn-login">Iniciar sesión</button>
+                        <button type="button" class="btn-register" onclick="window.location.href='register.html'">Crear cuenta nueva</button>
+                    </form>
+
+                    <div class="divider">
+                        <span>o continúa con</span>
+                    </div>
+
+                    <div class="social-login">
+                        <button class="btn-social google">
+                            <svg width="20" height="20" viewBox="0 0 20 20">
+                                <path fill="#4285F4" d="M19.6 10.2c0-.7-.1-1.4-.2-2H10v3.8h5.4c-.2 1.2-1 2.2-2 2.9v2.5h3.2c1.9-1.7 3-4.3 3-7.2z"/>
+                                <path fill="#34A853" d="M10 20c2.7 0 4.9-.9 6.6-2.4l-3.2-2.5c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.8-5.6-4.1H1.1v2.6C2.8 17.4 6.1 20 10 20z"/>
+                                <path fill="#FBBC05" d="M4.4 12c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V5.4H1.1C.4 6.8 0 8.4 0 10s.4 3.2 1.1 4.6l3.3-2.6z"/>
+                                <path fill="#EA4335" d="M10 4c1.5 0 2.8.5 3.8 1.5l2.8-2.8C14.9 1 12.7 0 10 0 6.1 0 2.8 2.6 1.1 6.4l3.3 2.6C5.2 5.8 7.4 4 10 4z"/>
+                            </svg>
+                            Google
+                        </button>
+                        <button class="btn-social facebook">
+                            <svg width="20" height="20" viewBox="0 0 20 20">
+                                <path fill="#1877F2" d="M20 10c0-5.5-4.5-10-10-10S0 4.5 0 10c0 5 3.7 9.1 8.4 9.9v-7H5.9v-2.9h2.5V7.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V10h2.8l-.4 2.9h-2.3v7C16.3 19.1 20 15 20 10z"/>
+                            </svg>
+                            Facebook
+                        </button>
+                    </div>
+                </div>
+
+                    <div class="login-benefits">
+                        <h3>¿POR QUÉ ELEGIRNOS?</h3>
+                        <ul class="benefits-list">
+                            <li>
+                                <img src="img/pagoseguro.png" alt="Seguridad" class="benefit-icon" style="width: 80px; height: 60px; border-radius: 10px;">
+                                <div>
+                                    <strong>Pagos Seguros</strong>
+                                </div>
+                            </li>
+                            <li>
+                                <img src="img/sincostos.png" alt="Sin costos" class="benefit-icon" style="width: 80px; height: 60px; border-radius: 10px;">
+                                <div>
+                                    <strong>Sin Costos</strong>
+                                </div>
+                            </li>
+                            <li>
+                                <img src="img/milesdeusuarios.png" alt="Usuarios" class="benefit-icon" style="width: 80px; height: 60px; border-radius: 10px;">
+                                <div>
+                                    <strong>Miles de Usuarios</strong>
+                                </div>
+                            </li>
+                            <li>
+                                <img src="img/soporte24.png" alt="Soporte" class="benefit-icon" style="width: 80px; height: 60px; border-radius: 10px;">
+                                <div>
+                                    <strong>Soporte 24/7</strong>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container-landing">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo">EurOffersurv.com</div>
+                    <p>Gana dinero online de forma fácil y segura</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <a href="terms.html">Términos y condiciones</a>
+                    <a href="politics.html">Política de privacidad</a>
+                    <a href="#">Aviso legal</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Soporte</h4>
+                    <a href="#">Centro de ayuda</a>
+                    <a href="#">Contacto</a>
+                    <a href="#">FAQ</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Síguenos</h4>
+                    <a href="#">Facebook</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Instagram</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 EurOffersurv.com. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

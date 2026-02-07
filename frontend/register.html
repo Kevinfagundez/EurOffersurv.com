@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro EurOffersurv</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos para las ventanas modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 5% auto;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--secondary-dark);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .close-modal:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 60vh;
+            line-height: 1.6;
+        }
+
+        .modal-body h3 {
+            color: #333;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        .terms-link {
+            color: #2196F3;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .terms-link:hover {
+            color: #1976D2;
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mejoras para el texto del checkbox */
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            margin-right: 10px;
+            margin-top: 3px;
+        }
+
+        .terms-container {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body class="register-page">
+    <!-- Header -->
+    <header class="header-landing">
+        <div class="container-landing">
+            <div class="logo"><span style="color:green">Eur</span><span style="color:blue">Offersurv.com</span></div>
+            <nav class="nav-landing">
+                <button class="btn-secondary" onclick="window.location.href='index.html'">Iniciar sesión</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Modal Términos y Condiciones -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>TERMS AND CONDITIONS</h2>
+                <button class="close-modal" onclick="closeModal('termsModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Euroffersurv.com</strong></p>
+                <p><em>Last updated: [26/01/2026]</em></p>
+                
+                <p>By accessing and using Euroffersurv.com (the "Platform"), you agree to comply with and be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must discontinue use of the Platform.</p>
+
+                <h3>1. Purpose of the Platform</h3>
+                <p>Euroffersurv.com provides users with access to surveys, offers, and tasks provided by third-party partners in exchange for rewards.</p>
+                <p>Euroffersurv.com acts solely as an intermediary platform and is not the direct provider or advertiser of the surveys or offers.</p>
+
+                <h3>2. User Registration</h3>
+                <p>To access certain features, users must create an account.</p>
+                <p>By registering, you agree to:</p>
+                <ul>
+                    <li>Provide accurate and truthful information</li>
+                    <li>Maintain the security of your account</li>
+                    <li>Use only one account per person</li>
+                </ul>
+                <p>Euroffersurv.com reserves the right to suspend or terminate accounts that violate these terms.</p>
+
+                <h3>3. Acceptable Use</h3>
+                <p>Users must use the Platform in a lawful and honest manner.</p>
+                <p>The following activities are strictly prohibited:</p>
+                <ul>
+                    <li>Use of VPNs, proxies, or IP masking tools</li>
+                    <li>Creating multiple accounts</li>
+                    <li>Providing false or misleading information in surveys</li>
+                    <li>Use of bots, scripts, or automated systems</li>
+                    <li>Any attempt to manipulate offers or rewards</li>
+                </ul>
+                <p>Violation of these rules may result in loss of rewards and permanent account suspension.</p>
+
+                <h3>4. Third-Party Offers and Surveys</h3>
+                <p>All surveys and offers available on Euroffersurv.com are provided by third-party partners.</p>
+                <p>Euroffersurv.com does not guarantee:</p>
+                <ul>
+                    <li>Availability of offers at all times</li>
+                    <li>Approval of all completed surveys</li>
+                    <li>That offers will not be rejected or reversed</li>
+                </ul>
+                <p>Final validation of offers is determined exclusively by the third-party provider.</p>
+
+                <h3>5. Rewards and Payments</h3>
+                <ul>
+                    <li>Rewards are credited only for valid and approved offers</li>
+                    <li>Some offers may be subject to fraud prevention review</li>
+                    <li>Payments may be delayed pending third-party validation</li>
+                </ul>
+                <p>Euroffersurv.com reserves the right to adjust, withhold, or remove rewards in cases of fraud, error, or offer reversal.</p>
+
+                <h3>6. Reversals and Cancellations</h3>
+                <p>Completed offers may be rejected or reversed days or weeks after completion.</p>
+                <p>By using the Platform, the user acknowledges that:</p>
+                <ul>
+                    <li>Rewards may be removed</li>
+                    <li>Third-party decisions are final and binding</li>
+                </ul>
+
+                <h3>7. Limitation of Liability</h3>
+                <p>Euroffersurv.com is not responsible for:</p>
+                <ul>
+                    <li>Technical issues caused by third parties</li>
+                    <li>Offer cancellations</li>
+                    <li>Loss of rewards due to rule violations</li>
+                    <li>Any damages resulting from use of the Platform</li>
+                </ul>
+                <p>Use of the Platform is at the user's own risk.</p>
+
+                <h3>8. Minimum Age</h3>
+                <p>Users must be at least 18 years old or meet the legal age requirement in their country to use Euroffersurv.com.</p>
+
+                <h3>9. Modifications</h3>
+                <p>Euroffersurv.com reserves the right to modify these Terms and Conditions at any time.</p>
+                <p>Continued use of the Platform constitutes acceptance of any changes.</p>
+
+                <h3>10. Contact Information</h3>
+                <p>For questions regarding these Terms and Conditions, please contact:</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="82e3e6efebecc2e7f7f0ede4e4e7f0f1f7f0f4ace1edef">[email&#160;protected]</a></p>
+                <p>Euroffersurv.com</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Política de Privacidad -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>PRIVACY POLICY</h2>
+                <button class="close-modal" onclick="closeModal('privacyModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Euroffersurv.com</strong></p>
+                <p><em>Last updated: [26/01/2026]</em></p>
+                
+                <p>Euroffersurv.com ("we", "our", or "the Platform") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website.</p>
+                <p>By accessing or using Euroffersurv.com, you agree to this Privacy Policy.</p>
+
+                <h3>1. Information We Collect</h3>
+                <p>We may collect the following types of information:</p>
+                
+                <h4>a) Personal Information</h4>
+                <ul>
+                    <li>Email address</li>
+                    <li>Username</li>
+                    <li>Country or region</li>
+                    <li>Account-related information</li>
+                </ul>
+
+                <h4>b) Automatically Collected Information</h4>
+                <ul>
+                    <li>IP address</li>
+                    <li>Browser type and device information</li>
+                    <li>Pages visited and usage data</li>
+                </ul>
+                <p>This data is collected to ensure platform security, prevent fraud, and improve user experience.</p>
+
+                <h3>2. How We Use Your Information</h3>
+                <p>We use collected information to:</p>
+                <ul>
+                    <li>Provide access to surveys and offers</li>
+                    <li>Manage user accounts</li>
+                    <li>Prevent fraud and abuse</li>
+                    <li>Track rewards and activity</li>
+                    <li>Improve platform performance</li>
+                    <li>Comply with legal obligations</li>
+                </ul>
+                <p>We do not sell personal data to third parties.</p>
+
+                <h3>3. Third-Party Services</h3>
+                <p>Euroffersurv.com works with third-party partners that provide surveys and offers.</p>
+                <p>These partners may collect and process data independently according to their own privacy policies. Euroffersurv.com is not responsible for the data practices of third-party services.</p>
+
+                <h3>4. Data Retention</h3>
+                <p>We retain personal data only for as long as necessary to:</p>
+                <ul>
+                    <li>Provide services</li>
+                    <li>Comply with legal requirements</li>
+                    <li>Resolve disputes and enforce agreements</li>
+                </ul>
+                <p>Users may request deletion of their account and personal data.</p>
+
+                <h3>5. Data Security</h3>
+                <p>We implement reasonable security measures to protect user data. However, no online platform can guarantee absolute security.</p>
+
+                <h3>6. User Rights (GDPR)</h3>
+                <p>Users located in the European Union have the right to:</p>
+                <ul>
+                    <li>Access their personal data</li>
+                    <li>Request correction or deletion</li>
+                    <li>Object to processing</li>
+                    <li>Request data portability</li>
+                </ul>
+                <p>Requests can be sent to: 📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e687828b8f88a6839394898080839495939490c885898b">[email&#160;protected]</a></p>
+
+                <h3>7. Children's Information</h3>
+                <p>Euroffersurv.com is not intended for users under the age of 18. We do not knowingly collect personal data from minors.</p>
+
+                <h3>8. Changes to This Policy</h3>
+                <p>We may update this Privacy Policy at any time. Continued use of the Platform indicates acceptance of changes.</p>
+
+                <h3>9. Contact</h3>
+                <p>For privacy-related questions, contact:</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8aebeee7e3e4caeffff8e5ececeff8f9fff8fca4e9e5e7">[email&#160;protected]</a></p>
+                <p>Euroffersurv.com</p>
+
+                <hr style="margin: 30px 0; border: 1px solid #eee;">
+
+                <h2>COOKIE POLICY</h2>
+                <p><strong>Euroffersurv.com</strong></p>
+                <p><em>Last updated: [01/26/2026]</em></p>
+
+                <p>This Cookie Policy explains how Euroffersurv.com uses cookies and similar technologies.</p>
+
+                <h3>1. What Are Cookies?</h3>
+                <p>Cookies are small text files stored on your device when you visit a website. They help improve functionality, security, and user experience.</p>
+
+                <h3>2. Types of Cookies We Use</h3>
+                
+                <h4>a) Essential Cookies</h4>
+                <ul>
+                    <li>Required for basic site functionality</li>
+                    <li>Enable account login and security</li>
+                    <li>Cannot be disabled</li>
+                </ul>
+
+                <h4>b) Analytics Cookies</h4>
+                <ul>
+                    <li>Help us understand how users interact with the Platform</li>
+                    <li>Used to improve performance and usability</li>
+                </ul>
+
+                <h4>c) Functional Cookies</h4>
+                <ul>
+                    <li>Remember user preferences</li>
+                    <li>Improve navigation and experience</li>
+                </ul>
+
+                <h3>3. Third-Party Cookies</h3>
+                <p>Some cookies may be placed by third-party services integrated into the Platform.</p>
+                <p>Euroffersurv.com does not control these cookies and encourages users to review third-party cookie policies.</p>
+
+                <h3>4. Managing Cookies</h3>
+                <p>You can manage or disable cookies through your browser settings.</p>
+                <p>Please note: disabling cookies may affect site functionality.</p>
+
+                <h3>5. Consent</h3>
+                <p>By continuing to use Euroffersurv.com, you consent to the use of cookies in accordance with this policy.</p>
+
+                <h3>6. Contact</h3>
+                <p>For questions about this Cookie Policy, contact:</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c1d181115123c19090e131a1a190e0f090e0a521f1311">[email&#160;protected]</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Registration -->
+    <section class="hero-registration">
+        <div class="container-landing">
+            <div class="hero-registration-content">
+                <div class="hero-registration-text">
+                    <h1>CREA TU CUENTA Y EMPIEZA A GANAR</h1>
+                    <p class="hero-subtitle">Únete a miles de usuarios que ya están ganando dinero completando ofertas y encuestas online.</p>
+                </div>
+
+                <div class="hero-registration-image">
+                    <div class="placeholder-image">
+                        <img src="img/creatucuenta-register.svg" alt="Crear cuenta" width="400" height="400">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FORMULARIO DE REGISTRO -->
+    <section class="registration-section">
+        <div class="container-landing">
+            <div class="registration-container">
+                <div class="registration-box">
+                    <div class="registration-header">
+                        <h2>CREAR CUENTA NUEVA</h2>
+                        <p class="registration-subtitle">Completa tus datos para registrarte</p>
+                    </div>
+                    
+                    <form id="registerForm" class="registration-form">
+
+                        <!-- DATOS PERSONALES -->
+                        <div class="form-section">
+                            <h3 class="section-title">Información personal</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">Nombre</label>
+                                    <input type="text" id="firstName" placeholder="Juan" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Apellido</label>
+                                    <input type="text" id="lastName" placeholder="Pérez" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Correo electrónico</label>
+                                <input type="email" id="email" placeholder="juan@ejemplo.com" required>
+                                <small class="form-hint">Usaremos este correo para todas las notificaciones</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="birthDate">Fecha de nacimiento</label>
+                                <input type="date" id="birthDate" required>
+                                <small class="form-hint">Debes tener al menos 18 años</small>
+                            </div>
+                        </div>
+
+                        <!-- SEGURIDAD  -->
+                        <div class="form-section">
+                            <h3 class="section-title">Seguridad</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="password">Contraseña</label>
+                                    <div class="password-input">
+                                        <input type="password" id="password" placeholder="••••••••" required>
+                                        <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                            👁️
+                                        </button>
+                                    </div>
+                                    <div class="password-strength">
+                                        <div class="strength-bar"></div>
+                                        <span class="strength-text">Seguridad: <span id="strengthText">Débil</span></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirmar contraseña</label>
+                                    <div class="password-input">
+                                        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                                        <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                            👁️
+                                        </button>
+                                    </div>
+                                    <small id="passwordMatch" class="form-hint hidden">Las contraseñas no coinciden</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Términos y Condiciones -->
+                        <div class="form-section">
+                            <div class="terms-container">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="terms" required>
+                                    <span class="checkmark"></span>
+                                    Acepto los <a href="#" class="terms-link" onclick="openModal('termsModal'); return false;">Términos y Condiciones</a> y la <a href="#" class="terms-link" onclick="openModal('privacyModal'); return false;">Política de Privacidad & Cookie Policy</a>
+                                </label>
+                                
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="newsletter">
+                                    <span class="checkmark"></span>
+                                    Deseo recibir ofertas especiales y actualizaciones por correo electrónico
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn-register-submit">CREAR CUENTA</button>
+                            <p class="login-link">
+                                ¿Ya tienes una cuenta? <a href="index.html" class="login-redirect">Inicia sesión aquí</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Benefits Sidebar -->
+                <div class="registration-benefits">
+                    <h3>BENEFICIOS DE REGISTRARTE</h3>
+                    <ul class="benefits-list">
+                        <li>
+                            <span class="check">✓</span>
+                            <div>
+                                <strong>Bonificación de bienvenida</strong>
+                                <p>Recibe 100 puntos al registrarte</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="check">✓</span>
+                            <div>
+                                <strong>Acceso inmediato</strong>
+                                <p>Empieza a ganar desde el primer día</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="check">✓</span>
+                            <div>
+                                <strong>Ofertas personalizadas</strong>
+                                <p>Recibe ofertas según tu perfil</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="check">✓</span>
+                            <div>
+                                <strong>Programa de referidos</strong>
+                                <p>Gana el 10% de las ganancias de tus amigos</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="check">✓</span>
+                            <div>
+                                <strong>Soporte prioritario</strong>
+                                <p>Respuestas más rápidas a tus consultas</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Section -->
+    <section class="security-section">
+        <div class="container-landing">
+            <h2>TU SEGURIDAD ES NUESTRA PRIORIDAD</h2>
+            <p class="section-subtitle">Protegemos tus datos con los más altos estándares de seguridad</p>
+            <div class="security-features">
+                <div class="security-feature">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                    </svg>
+                    <h3>Encriptación SSL</h3>
+                    <p>Todos los datos transmitidos están encriptados</p>
+                </div>
+
+                <div class="security-feature">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    <h3>Protección antifraude</h3>
+                    <p>Sistema avanzado de detección de actividades sospechosas</p>
+                </div>
+                
+                <div class="security-feature">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                    </svg>
+                    <h3>Pagos garantizados</h3>
+                    <p>Garantizamos todos los pagos a nuestros usuarios</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container-landing">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo">EurOffersurv.com</div>
+                    <p>Gana dinero online de forma fácil y segura</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <a href="terms.html">Términos y condiciones</a>
+                    <a href="politics.html">Política de privacidad</a>
+                    <a href="#">Aviso legal</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Soporte</h4>
+                    <a href="#">Centro de ayuda</a>
+                    <a href="#">Contacto</a>
+                    <a href="#">FAQ</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Síguenos</h4>
+                    <a href="#">Facebook</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Instagram</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 EurOffersurv.com. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Funciones para manejar modales
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Cerrar modal al hacer click fuera del contenido
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Cerrar con tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
