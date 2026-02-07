@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - EurOffersurv</title>
 
-    <link rel="stylesheet" href="/frontend/styles.css">
+    <link rel="stylesheet" href="/styles.css">
 
     <style>
         /* Estilos específicos para TheoremReach */
@@ -16,65 +16,34 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             min-height: 600px;
         }
-
-        #theoremreach_offerwall {
-            width: 100%;
-            min-height: 600px;
-        }
-
+        #theoremreach_offerwall { width: 100%; min-height: 600px; }
         .offerwall-loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem;
-            text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 3rem; text-align: center;
         }
-
         .loader-spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #2196f3;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             animation: spin 1s linear infinite;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-
         .stat-card {
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .stat-card h3 {
-            color: #757575;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-card .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2196f3;
-        }
-
-        .main-content {
-            padding: 2rem;
-        }
+        .stat-card h3 { color: #757575; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: #2196f3; }
+        .main-content { padding: 2rem; }
     </style>
 </head>
 <body>
@@ -82,9 +51,7 @@
     <nav class="navbar">
         <div class="navbar-left">
             <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </button>
             <div class="logo">
                 <span style="color:green">Eur</span><span style="color:blue">Offersurv.com</span>
@@ -92,31 +59,23 @@
         </div>
 
         <div class="navbar-right">
-            <!-- Notificaciones -->
             <div class="notif-wrap" id="notifWrap">
                 <button class="notification-btn" id="notifBtn" aria-label="Notificaciones" aria-expanded="false">
-                    <!-- Campana SVG -->
                     <svg class="icon-bell" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M12 22a2.2 2.2 0 0 0 2.2-2.2H9.8A2.2 2.2 0 0 0 12 22Z" fill="currentColor"/>
                         <path d="M20 17.2H4c-.6 0-1-.4-1-1 0-.4.2-.7.5-.9l1.2-.7V10a7.3 7.3 0 0 1 5-6.9V2.4c0-.7.6-1.3 1.3-1.3h1c.7 0 1.3.6 1.3 1.3v.7a7.3 7.3 0 0 1 5 6.9v3.6l1.2.7c.3.2.5.5.5.9 0 .6-.4 1-1 1Z"
                               fill="currentColor"/>
                     </svg>
-
                     <span class="badge" id="notifBadge" hidden>0</span>
                 </button>
 
-                <!-- Dropdown -->
                 <div class="notif-dropdown" id="notifDropdown" hidden>
                     <div class="notif-head">
                         <div class="notif-title">Notificaciones</div>
                         <button class="notif-action" id="notifMarkAllBtn" type="button">Marcar todo como leído</button>
                     </div>
-
-                    <div class="notif-list" id="notifList">
-                        <!-- JS inyecta items -->
-                    </div>
-
+                    <div class="notif-list" id="notifList"></div>
                     <div class="notif-foot">
                         <button class="notif-secondary" id="notifClearBtn" type="button">Limpiar</button>
                         <button class="notif-primary" id="notifRefreshBtn" type="button">Actualizar</button>
@@ -126,7 +85,7 @@
 
             <div class="user-info">
                 <div class="user-avatar">
-                    <img src="/frontend/img/usuario.png" alt="Usuario">
+                    <img src="/img/usuario.png" alt="Usuario">
                 </div>
                 <div class="user-details">
                     <div class="user-name">Cargando...</div>
@@ -139,61 +98,23 @@
     </nav>
 
     <div class="dashboard-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <nav class="sidebar-nav">
-                <a class="sidebar-link active" onclick="navigateTo('inicio')">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                    </svg>
-                    <span>Inicio</span>
-                </a>
-
-                <a class="sidebar-link" onclick="navigateTo('encuestas')">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/>
-                    </svg>
-                    <span>Encuestas</span>
-                </a>
-
-                <a class="sidebar-link" onclick="navigateTo('ofertas')">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
-                    </svg>
-                    <span>Ofertas</span>
-                </a>
-        
-                <a class="sidebar-link" onclick="navigateTo('recompensas')">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"/>
-                    </svg>
-                    <span>Recompensas</span>
-                </a>
-
-                <a class="sidebar-link" onclick="navigateTo('soporte')">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"/>
-                    </svg>
-                    <span>Soporte</span>
-                </a>
+                <a class="sidebar-link active" onclick="navigateTo('inicio')"><span>Inicio</span></a>
+                <a class="sidebar-link" onclick="navigateTo('encuestas')"><span>Encuestas</span></a>
+                <a class="sidebar-link" onclick="navigateTo('ofertas')"><span>Ofertas</span></a>
+                <a class="sidebar-link" onclick="navigateTo('recompensas')"><span>Recompensas</span></a>
+                <a class="sidebar-link" onclick="navigateTo('soporte')"><span>Soporte</span></a>
 
                 <div class="sidebar-divider"></div>
 
-                <a class="sidebar-link logout" onclick="handleLogout()">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"/>
-                    </svg>
-                    <span>Cerrar Sesión</span>
-                </a>
+                <a class="sidebar-link logout" onclick="handleLogout()"><span>Cerrar Sesión</span></a>
             </nav>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <h1 style="margin-bottom: 2rem;">Bienvenido a <span style="color:green">Eur</span><span style="color:blue">Offersurv.com</span></h1>
 
-            <!-- Estadísticas -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>BALANCE DISPONIBLE</h3>
@@ -209,7 +130,6 @@
                 </div>
             </div>
 
-            <!-- TheoremReach Offerwall -->
             <div id="theoremreach-container">
                 <div class="offerwall-loader">
                     <div class="loader-spinner"></div>
@@ -220,71 +140,8 @@
         </main>
     </div>
 
-    <footer class="footer">
-        <div class="container-landing">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <div class="logo">EurOffersurv.com</div>
-                    <p>Gana dinero online de forma fácil y segura</p>
-                </div>
-                <div class="footer-links">
-                    <h4>Legal</h4>
-                    <a href="terms.html">Términos y condiciones</a>
-                    <a href="politics.html">Política de privacidad</a>
-                    <a href="#">Aviso legal</a>
-                </div>
-                <div class="footer-links">
-                    <h4>Soporte</h4>
-                    <a href="#">Centro de ayuda</a>
-                    <a href="#">Contacto</a>
-                    <a href="#">FAQ</a>
-                </div>
-                <div class="footer-links">
-                    <h4>Síguenos</h4>
-                    <a href="#">Facebook</a>
-                    <a href="#">Twitter</a>
-                    <a href="#">Instagram</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 EurOffersurv.com. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Logout Modal (PRO) -->
-    <div class="modal-overlay" id="logoutModal" hidden>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="logoutTitle" aria-describedby="logoutDesc">
-        <div class="modal-head">
-        <div class="modal-icon" aria-hidden="true">
-            <!-- icon logout -->
-            <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"/>
-            </svg>
-        </div>
-
-        <div class="modal-titles">
-            <div class="modal-title" id="logoutTitle">Cerrar sesión</div>
-            <div class="modal-desc" id="logoutDesc">¿Seguro que quieres salir de tu cuenta?</div>
-        </div>
-
-        <button class="modal-close" id="logoutCloseBtn" type="button" aria-label="Cerrar">
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>
-            </svg>
-        </button>
-        </div>
-
-        <div class="modal-actions">
-        <button class="modal-btn secondary" id="logoutCancelBtn" type="button">Cancelar</button>
-        <button class="modal-btn danger" id="logoutConfirmBtn" type="button">Sí, cerrar sesión</button>
-        </div>
-    </div>
-    </div>
-
-
-    <script src="/frontend/auth.js"></script>
-    <script src="/frontend/app.js"></script>
-    <script src="/frontend/theoremreach-integration.js"></script>
+    <script src="/auth.js"></script>
+    <script src="/app.js"></script>
+    <script src="/theoremreach-integration.js"></script>
 </body>
 </html>
