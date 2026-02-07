@@ -21,16 +21,18 @@ class User {
     public function register($data) {
         try {
             if ($this->emailExists($data['email'])) {
-                return [
-                    'success' => false,
-                    'message' => 'Este correo electrónico ya está registrado'
-                ];
+                return ['success' => false, 'message' => 'Este correo electrónico ya está registrado'];
             }
 
             $userId = $this->generateUserId();
             $passwordHash = password_hash($data['password'], PASSWORD_BCRYPT);
 
-            // ✅ IMPORTANTE: Quitamos columnas que no existen en tu tabla Postgres (register_ip, user_agent)
+            // ✅ mínimos obligatorios según tu tabla
+            $country = $data['country'] ?? 'Uruguay';
+            $city = $data['city'] ?? null;
+            $gender = $data['gender'] ?? 'not-specified';
+            $newsletter = (bool)($data['newsletter'] ?? false);
+
             $query = "INSERT INTO users (
                 user_id,
                 first_name,
@@ -38,6 +40,9 @@ class User {
                 email,
                 password_hash,
                 birth_date,
+                country,
+                city,
+                gender,
                 newsletter,
                 is_active,
                 is_verified
@@ -48,6 +53,9 @@ class User {
                 :email,
                 :password_hash,
                 :birth_date,
+                :country,
+                :city,
+                :gender,
                 :newsletter,
                 TRUE,
                 FALSE
@@ -61,8 +69,11 @@ class User {
             $stmt->bindValue(':last_name', $data['lastName']);
             $stmt->bindValue(':email', $data['email']);
             $stmt->bindValue(':password_hash', $passwordHash);
-            $stmt->bindValue(':birth_date', $data['birthDate']); // formato YYYY-MM-DD
-            $stmt->bindValue(':newsletter', (bool)($data['newsletter'] ?? false), PDO::PARAM_BOOL);
+            $stmt->bindValue(':birth_date', $data['birthDate']);
+            $stmt->bindValue(':country', $country);
+            $stmt->bindValue(':city', $city);
+            $stmt->bindValue(':gender', $gender);
+            $stmt->bindValue(':newsletter', $newsletter, PDO::PARAM_BOOL);
 
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -78,8 +89,7 @@ class User {
             error_log("Error en registro: " . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Error al registrar usuario. Por favor, intente nuevamente.',
-                'debug' => $e->getMessage()
+                'message' => 'Error al registrar usuario. Por favor, intente nuevamente.'
             ];
         }
     }
