@@ -4,7 +4,8 @@
 // ========================================
 
 // 🔴 BACKEND REAL EN PRODUCCIÓN
-const API_BASE = "https://euroffersurv-api.onrender.com/api";
+window.EUR_API_BASE = window.EUR_API_BASE || "https://euroffersurv-api.onrender.com/api";
+const API_BASE = window.EUR_API_BASE;
 
 class AuthSystem {
     constructor() {
