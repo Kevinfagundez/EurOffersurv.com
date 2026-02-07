@@ -36,28 +36,19 @@ if (empty($result['success'])) {
     exit;
 }
 
-// ✅ Obtener user_id de forma robusta (según cómo lo devuelva tu clase User)
-$uidRaw =
-    $result['user']['user_id'] ??
-    $result['user']['id'] ??
-    $result['user']['userId'] ??
-    null;
+// ✅ user_id es STRING (ej: user_...)
+// NO castear a int
+$uid = $result['user']['user_id'] ?? null;
 
-$uid = is_numeric($uidRaw) ? (int)$uidRaw : 0;
-
-if ($uid <= 0) {
-    // Si no hay ID válido, NO crear sesión “a medias”
+if (!is_string($uid) || trim($uid) === '') {
     session_unset();
     session_destroy();
-
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Login inválido: user_id no válido (0). Revisa User::login()',
+        'message' => 'Login inválido: user_id no válido (vacío). Revisa User::login()',
         'debug' => [
-            'uidRaw' => $uidRaw,
             'user_keys' => isset($result['user']) && is_array($result['user']) ? array_keys($result['user']) : null,
-            'session_id' => session_id(),
         ]
     ]);
     exit;
@@ -76,11 +67,4 @@ echo json_encode([
     'success' => true,
     'message' => $result['message'] ?? 'Inicio de sesión exitoso',
     'user' => $result['user'],
-    'debug' => [
-        'session_id' => session_id(),
-        'cookie_name' => session_name(),
-        'uid' => $uid,
-        'uidRaw' => $uidRaw,
-        'user_keys' => isset($result['user']) && is_array($result['user']) ? array_keys($result['user']) : null,
-    ]
 ]);

@@ -18,11 +18,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 
 session_start();
 
-// Limpia variables
 $_SESSION = [];
 session_unset();
 
-// ✅ Borra cookie de sesión en el cliente (CLAVE)
 $cookieName = session_name();
 $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
@@ -35,7 +33,6 @@ setcookie($cookieName, '', [
     'samesite' => 'None',
 ]);
 
-// Destruye sesión
 session_destroy();
 
 echo json_encode(['success' => true, 'message' => 'Sesión cerrada exitosamente']);

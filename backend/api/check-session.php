@@ -34,10 +34,10 @@ if (!isset($_COOKIE[session_name()])) {
     exit;
 }
 
-// ✅ FIX: NO usar empty($_SESSION['user_id']) porque user_id=0 hace empty()=true
-$uid = (int)($_SESSION['user_id'] ?? 0);
+// ✅ user_id es STRING => validar string no vacío
+$uid = $_SESSION['user_id'] ?? null;
 
-if (empty($_SESSION['logged_in']) || $uid <= 0) {
+if (empty($_SESSION['logged_in']) || !is_string($uid) || trim($uid) === '') {
     echo json_encode([
         'authenticated' => false,
         'reason' => 'no_session_data',
@@ -49,8 +49,7 @@ if (empty($_SESSION['logged_in']) || $uid <= 0) {
 require_once __DIR__ . '/../classes/User.php';
 
 $user = new User();
-$userId = $uid;
-$userData = $user->getUserById($userId);
+$userData = $user->getUserById($uid);
 
 if (!$userData) {
     // Si el user no existe, limpiar sesión
