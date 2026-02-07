@@ -137,39 +137,23 @@ async function handleLogout() {
 // ========== DASHBOARD FUNCTIONS ==========
 
 async function initDashboard() {
-  // ✅ NO /frontend/index.html
-  const allowed = await (auth.requireAuth ? auth.requireAuth(ROUTES.index) : Promise.resolve(true));
-  if (!allowed) return;
+  // ✅ check real contra el backend
+  const user = await auth.getCurrentUser();
 
-  const user = await resolveCurrentUser();
   if (!user) {
-    window.location.href = ROUTES.index;
+    window.location.href = '/index.html';
     return;
   }
 
   updateDashboardUserInfo(user);
-  console.log("Datos del usuario cargados:", user);
 
   initNotifications(user);
   initWithdraw(user);
   initLogoutModal();
 
-  if (typeof window.initTheoremReach === "function") {
+  if (typeof window.initTheoremReach === 'function') {
     window.initTheoremReach();
   }
-}
-
-async function resolveCurrentUser() {
-  // Fuente real: check-session.php
-  if (auth.getCurrentUser) {
-    try {
-      const u = await auth.getCurrentUser();
-      if (u) return normalizeUser(u);
-    } catch (e) {
-      console.warn("auth.getCurrentUser falló:", e);
-    }
-  }
-  return null;
 }
 
 function normalizeUser(user) {
