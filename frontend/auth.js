@@ -3,9 +3,13 @@
 // Frontend JS conectado a Backend PHP
 // ========================================
 
+// 🔴 BACKEND REAL EN PRODUCCIÓN
+const API_BASE = "https://euroffersurv-api.onrender.com/api";
+
 class AuthSystem {
     constructor() {
-        this.API_BASE = '/backend/api';
+        // 🔴 FIX CLAVE: usar el API_BASE real
+        this.API_BASE = API_BASE;
     }
 
     // =========================
@@ -38,7 +42,7 @@ class AuthSystem {
     }
 
     // =========================
-    // LOGIN (NO REDIRIGE)
+    // LOGIN
     // =========================
     async login(email, password) {
         try {
@@ -59,7 +63,6 @@ class AuthSystem {
             }
 
             if (result.success) {
-                // Guardamos como cache (no como fuente única)
                 localStorage.setItem('euroffersurv_logged_in', 'true');
                 localStorage.setItem('euroffersurv_user_id', result.user.user_id);
             }
@@ -108,13 +111,11 @@ class AuthSystem {
         }
     }
 
-    // ✅ Fuente real: servidor
     async isAuthenticated() {
         const user = await this.getCurrentUser();
         return !!user;
     }
 
-    // Cache local
     getUserId() {
         return localStorage.getItem('euroffersurv_user_id');
     }
@@ -140,9 +141,9 @@ class AuthSystem {
     }
 
     // =========================
-    // REDIRECCIONES (basadas en sesión real)
+    // REDIRECCIONES
     // =========================
-    async redirectIfAuthenticated(redirectTo = '/frontend/dashboard.html') {
+    async redirectIfAuthenticated(redirectTo = '/dashboard.html') {
         const user = await this.getCurrentUser();
         if (user) {
             localStorage.setItem('euroffersurv_logged_in', 'true');
@@ -156,7 +157,7 @@ class AuthSystem {
         return false;
     }
 
-    async requireAuth(redirectTo = '/frontend/index.html') {
+    async requireAuth(redirectTo = '/index.html') {
         const user = await this.getCurrentUser();
         if (!user) {
             localStorage.removeItem('euroffersurv_logged_in');
@@ -165,7 +166,6 @@ class AuthSystem {
             return false;
         }
 
-        // cache
         localStorage.setItem('euroffersurv_logged_in', 'true');
         localStorage.setItem('euroffersurv_user_id', user.user_id);
         return true;
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (result.success) {
             alert('Registro exitoso');
-            window.location.href = '/frontend/index.html';
+            window.location.href = '/index.html';
         } else {
             alert(result.message || 'Error desconocido');
         }
