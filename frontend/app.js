@@ -54,7 +54,7 @@ async function handleLogin(event) {
 }
 
 function handleRegister() {
-    window.location.href = '/frontend/register.html';
+    window.location.href = '/register.html';
 }
 
 
@@ -68,7 +68,7 @@ function openLogoutModal() {
         // fallback por si el modal no está en el HTML
         if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
             auth.logout().finally(() => {
-                window.location.href = '/frontend/index.html';
+                window.location.href = '/index.html';
             });
         }
         return;
@@ -127,7 +127,7 @@ function initLogoutModal() {
         } finally {
             closeLogoutModal();
             setTimeout(() => {
-                window.location.href = '/frontend/index.html';
+                window.location.href = '/index.html';
             }, 250);
 
             // Restore (por si vuelve a abrirse sin recargar)
@@ -150,7 +150,7 @@ async function initDashboard() {
 
     const user = await resolveCurrentUser();
     if (!user) {
-        window.location.href = '/frontend/index.html';
+        window.location.href = '/index.html';
         return;
     }
 
