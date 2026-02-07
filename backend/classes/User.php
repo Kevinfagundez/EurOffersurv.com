@@ -30,6 +30,7 @@ class User {
             $userId = $this->generateUserId();
             $passwordHash = password_hash($data['password'], PASSWORD_BCRYPT);
 
+            // ✅ IMPORTANTE: Quitamos columnas que no existen en tu tabla Postgres (register_ip, user_agent)
             $query = "INSERT INTO users (
                 user_id,
                 first_name,
@@ -39,9 +40,7 @@ class User {
                 birth_date,
                 newsletter,
                 is_active,
-                is_verified,
-                register_ip,
-                user_agent
+                is_verified
             ) VALUES (
                 :user_id,
                 :first_name,
@@ -51,26 +50,22 @@ class User {
                 :birth_date,
                 :newsletter,
                 TRUE,
-                FALSE,
-                :register_ip,
-                :user_agent
+                FALSE
             )
             RETURNING user_id, email";
 
             $stmt = $this->conn->prepare($query);
 
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->bindParam(':first_name', $data['firstName']);
-            $stmt->bindParam(':last_name', $data['lastName']);
-            $stmt->bindParam(':email', $data['email']);
-            $stmt->bindParam(':password_hash', $passwordHash);
-            $stmt->bindParam(':birth_date', $data['birthDate']);
-            $stmt->bindParam(':newsletter', $data['newsletter'], PDO::PARAM_BOOL);
-            $stmt->bindParam(':register_ip', $_SERVER['REMOTE_ADDR']);
-            $stmt->bindParam(':user_agent', $_SERVER['HTTP_USER_AGENT']);
+            $stmt->bindValue(':user_id', $userId);
+            $stmt->bindValue(':first_name', $data['firstName']);
+            $stmt->bindValue(':last_name', $data['lastName']);
+            $stmt->bindValue(':email', $data['email']);
+            $stmt->bindValue(':password_hash', $passwordHash);
+            $stmt->bindValue(':birth_date', $data['birthDate']); // formato YYYY-MM-DD
+            $stmt->bindValue(':newsletter', (bool)($data['newsletter'] ?? false), PDO::PARAM_BOOL);
 
             $stmt->execute();
-            $result = $stmt->fetch();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return [
                 'success' => true,
@@ -98,7 +93,7 @@ class User {
             $stmt->bindParam(':email', $email);
             $stmt->execute();
 
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$user || !password_verify($password, $user['password_hash'])) {
                 return [
@@ -109,7 +104,7 @@ class User {
 
             unset($user['password_hash']);
 
-            // ⚠️ Aseguramos consistencia con app.js
+            // Consistencia con app.js
             $user['firstName'] = $user['first_name'];
             $user['lastName'] = $user['last_name'];
 
@@ -130,17 +125,17 @@ class User {
 
     /**
      * Obtener usuario por ID
-     * Necesario para check-session.php
      */
     public function getUserById($user_id) {
         try {
-            $stmt = $this->conn->prepare("SELECT user_id, first_name, last_name, email FROM users WHERE user_id = :user_id LIMIT 1");
+            $stmt = $this->conn->prepare(
+                "SELECT user_id, first_name, last_name, email FROM users WHERE user_id = :user_id LIMIT 1"
+            );
             $stmt->bindParam(':user_id', $user_id);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user) {
-                // Consistencia con app.js
                 $user['firstName'] = $user['first_name'];
                 $user['lastName'] = $user['last_name'];
             }
@@ -161,7 +156,7 @@ class User {
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
-        return $stmt->fetchColumn() > 0;
+        return (int)$stmt->fetchColumn() > 0;
     }
 
     /**
