@@ -46,7 +46,7 @@ async function handleLogin(event) {
     if (result.success) {
         showToast(result.message || 'Login exitoso', 'success');
         setTimeout(() => {
-            window.location.href = '/frontend/dashboard.html';
+            window.location.href = '/dashboard.html';
         }, 300);
     } else {
         showToast(result.message || 'Error al iniciar sesión', 'error');
