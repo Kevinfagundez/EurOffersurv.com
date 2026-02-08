@@ -66,77 +66,97 @@ function handleRegister() {
 
 // ========== LOGOUT (MODAL PRO) ==========
 
-let logoutModalBound = false;
+let logoutPopBound = false;
 
 function openLogoutModal() {
-  const modal = document.getElementById("logoutModal");
-  if (!modal) {
+  const pop = document.getElementById("logoutPop");
+  if (!pop) {
+    // fallback si no existe el pop
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-      auth.logout().finally(() => {
-        window.location.href = ROUTES.index;
-      });
+      auth.logout().finally(() => (window.location.href = ROUTES.index));
     }
     return;
   }
-
-  modal.hidden = false;
-  document.getElementById("logoutConfirmBtn")?.focus();
+  pop.hidden = false;
 }
 
 function closeLogoutModal() {
-  const modal = document.getElementById("logoutModal");
-  if (!modal) return;
-  modal.hidden = true;
+  const pop = document.getElementById("logoutPop");
+  if (!pop) return;
+  pop.hidden = true;
 }
 
 function initLogoutModal() {
-  if (logoutModalBound) return;
-  logoutModalBound = true;
+  if (logoutPopBound) return;
+  logoutPopBound = true;
 
-  const modal = document.getElementById("logoutModal");
+  const pop = document.getElementById("logoutPop");
   const cancelBtn = document.getElementById("logoutCancelBtn");
-  const closeBtn = document.getElementById("logoutCloseBtn");
   const confirmBtn = document.getElementById("logoutConfirmBtn");
+  const sidebar = document.getElementById("sidebar");
 
-  if (!modal || !cancelBtn || !closeBtn || !confirmBtn) return;
+  if (!pop || !cancelBtn || !confirmBtn) return;
 
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeLogoutModal();
+  // cancelar
+  cancelBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeLogoutModal();
   });
 
-  cancelBtn.addEventListener("click", closeLogoutModal);
-  closeBtn.addEventListener("click", closeLogoutModal);
-
-  document.addEventListener("keydown", (e) => {
-    if (!modal.hidden && e.key === "Escape") closeLogoutModal();
-  });
-
-  confirmBtn.addEventListener("click", async () => {
+  // confirmar logout real
+  confirmBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
     confirmBtn.disabled = true;
-    const prevText = confirmBtn.textContent;
+    const prev = confirmBtn.textContent;
     confirmBtn.textContent = "Cerrando...";
 
     try {
       const result = await auth.logout();
-      showToast(result.message || "Sesión cerrada", "success");
-    } catch (e) {
-      console.error("Logout error:", e);
+      showToast(result?.message || "Sesión cerrada", "success");
+    } catch (err) {
+      console.error("Logout error:", err);
       showToast("No se pudo cerrar sesión, intenta nuevamente", "error");
-    } finally {
-      closeLogoutModal();
-      setTimeout(() => {
-        window.location.href = ROUTES.index;
-      }, 250);
-
       confirmBtn.disabled = false;
-      confirmBtn.textContent = prevText || "Sí, cerrar sesión";
+      confirmBtn.textContent = prev;
+      return;
     }
+
+    closeLogoutModal();
+    setTimeout(() => (window.location.href = ROUTES.index), 250);
+  });
+
+  // click afuera cierra (solo en dashboard donde existe sidebar)
+  document.addEventListener("click", (e) => {
+    if (pop.hidden) return;
+
+    const clickedInsidePop = pop.contains(e.target);
+    const clickedLogoutLink = e.target.closest?.(".sidebar-link.logout");
+    if (clickedInsidePop || clickedLogoutLink) return;
+
+    // si hay sidebar, y el click fue dentro del sidebar pero fuera del pop, también cerramos
+    if (sidebar && sidebar.contains(e.target)) {
+      closeLogoutModal();
+      return;
+    }
+
+    closeLogoutModal();
+  });
+
+  // ESC cierra
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeLogoutModal();
   });
 }
 
 async function handleLogout() {
-  openLogoutModal();
+  // toggle del pop
+  const pop = document.getElementById("logoutPop");
+  if (!pop) return openLogoutModal();
+
+  if (pop.hidden) openLogoutModal();
+  else closeLogoutModal();
 }
+
 
 // ========== DASHBOARD FUNCTIONS ==========
 
