@@ -138,21 +138,12 @@
 
                 <div class="sidebar-divider"></div>
 
-                <!-- LOGOUT MODAL -->
-                <div class="logout-modal" id="logoutModal" hidden>
-                <div class="logout-card" role="dialog" aria-modal="true">
-                    <h3>Cerrar sesión</h3>
-                    <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
-
-                    <div class="logout-actions">
-                    <button class="btn-cancel" id="logoutCancelBtn">Cancelar</button>
-                    <button class="btn-confirm" id="logoutConfirmBtn">Cerrar sesión</button>
-                    </div>
-
-                    <button class="logout-close" id="logoutCloseBtn" aria-label="Cerrar">×</button>
-                </div>
-                </div>
-
+                <a class="sidebar-link logout" onclick="handleLogout()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"/>
+                </svg>
+                <span>Cerrar Sesión</span>
+                </a>
             </nav>
             </aside>
 
