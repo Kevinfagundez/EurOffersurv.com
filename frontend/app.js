@@ -439,6 +439,96 @@ function closeSidebarOnOutsideClick(event) {
   }
 }
 
+// ========== PASSWORD STRENGTH (REGISTER) ==========
+
+function initPasswordStrength() {
+  const pass = document.getElementById("password");
+  const strengthTextEl = document.getElementById("strengthText");
+  const bar = document.querySelector(".password-strength .strength-bar");
+
+  if (!pass || !strengthTextEl || !bar) return;
+
+  // base visual + animación suave
+  bar.style.height = "8px";
+  bar.style.borderRadius = "999px";
+  bar.style.width = "0%";
+  bar.style.transition = "width 220ms ease, background-color 220ms ease, transform 220ms ease";
+  strengthTextEl.style.transition = "color 220ms ease";
+
+  // (opcional) si el contenedor no tiene fondo, esto ayuda a que se vea mejor
+  const wrap = bar.parentElement;
+  if (wrap) {
+    wrap.style.background = "rgba(0,0,0,0.08)";
+    wrap.style.borderRadius = "999px";
+    wrap.style.padding = "2px";
+  }
+
+  function scorePassword(p) {
+    let score = 0;
+    if (!p) return 0;
+
+    // longitud
+    if (p.length >= 8) score += 1;
+    if (p.length >= 12) score += 1;
+
+    // variedad
+    if (/[a-z]/.test(p)) score += 1;
+    if (/[A-Z]/.test(p)) score += 1;
+    if (/\d/.test(p)) score += 1;
+    if (/[^A-Za-z0-9]/.test(p)) score += 1;
+
+    // penaliza si es muy corta
+    if (p.length < 6) score = Math.min(score, 1);
+
+    return Math.min(score, 5); // 0..5
+  }
+
+  function renderStrength() {
+    const s = scorePassword(pass.value);
+
+    let label = "Débil";
+    let width = "20%";
+    let color = "#f44336"; // rojo
+
+    if (s <= 1) {
+      label = "Débil";
+      width = "20%";
+      color = "#f44336";
+    } else if (s === 2) {
+      label = "Regular";
+      width = "45%";
+      color = "#ff9800"; // naranja
+    } else if (s === 3) {
+      label = "Media";
+      width = "65%";
+      color = "#fbc02d"; // amarillo (más visible que #ffeb3b)
+    } else if (s === 4) {
+      label = "Fuerte";
+      width = "85%";
+      color = "#8bc34a"; // verde claro
+    } else {
+      label = "Muy fuerte";
+      width = "100%";
+      color = "#4caf50"; // verde
+    }
+
+    strengthTextEl.textContent = label;
+    strengthTextEl.style.color = color;
+
+    bar.style.backgroundColor = color;
+    bar.style.width = width;
+
+    // pequeño "bounce" para que se sienta que se mueve
+    bar.animate(
+      [{ transform: "scaleX(1)" }, { transform: "scaleX(1.03)" }, { transform: "scaleX(1)" }],
+      { duration: 220, easing: "ease-out" }
+    );
+  }
+
+  pass.addEventListener("input", renderStrength);
+  renderStrength();
+}
+
 // ========== INIT ==========
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -453,6 +543,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     if (auth.redirectIfAuthenticated) auth.redirectIfAuthenticated(ROUTES.dashboard);
+
+    // ✅ activa el medidor de seguridad en register.html
+    initPasswordStrength();
   }
 
   // DASHBOARD
@@ -500,24 +593,19 @@ function togglePassword(inputId) {
   const input = document.getElementById(inputId);
   if (!input) return;
 
-  // Busca el botón "ojo" dentro del mismo contenedor (si existe)
   const wrapper = input.closest(".password-input");
   const btn = wrapper ? wrapper.querySelector(".toggle-password") : null;
 
   const isHidden = input.type === "password";
   input.type = isHidden ? "text" : "password";
 
-  // Cambia el icono si el botón existe (opcional, pero útil)
   if (btn) {
+    // ✅ ahora sí cambia
     btn.textContent = isHidden ? "👁️" : "👁️";
-    btn.setAttribute(
-      "aria-label",
-      isHidden ? "Ocultar contraseña" : "Mostrar contraseña"
-    );
+    btn.setAttribute("aria-label", isHidden ? "Ocultar contraseña" : "Mostrar contraseña");
     btn.setAttribute("aria-pressed", String(isHidden));
   }
 
-  // Mantener el foco en el input y el cursor al final
   try {
     input.focus({ preventScroll: true });
     const len = input.value.length;
