@@ -494,7 +494,39 @@ function showToast(message, type = "info") {
   setTimeout(() => toast.remove(), 3000);
 }
 
+// ========== TOGGLE PASSWORD (REGISTER) ==========
+// Muestra/oculta la contraseña para inputs como #password y #confirmPassword
+function togglePassword(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  // Busca el botón "ojo" dentro del mismo contenedor (si existe)
+  const wrapper = input.closest(".password-input");
+  const btn = wrapper ? wrapper.querySelector(".toggle-password") : null;
+
+  const isHidden = input.type === "password";
+  input.type = isHidden ? "text" : "password";
+
+  // Cambia el icono si el botón existe (opcional, pero útil)
+  if (btn) {
+    btn.textContent = isHidden ? "🙈" : "👁️";
+    btn.setAttribute(
+      "aria-label",
+      isHidden ? "Ocultar contraseña" : "Mostrar contraseña"
+    );
+    btn.setAttribute("aria-pressed", String(isHidden));
+  }
+
+  // Mantener el foco en el input y el cursor al final
+  try {
+    input.focus({ preventScroll: true });
+    const len = input.value.length;
+    input.setSelectionRange(len, len);
+  } catch (_) {}
+}
+
 // ========== EXPORTS ==========
 window.scrollToLogin = scrollToLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
+window.togglePassword = togglePassword;
