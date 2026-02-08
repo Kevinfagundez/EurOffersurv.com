@@ -441,6 +441,7 @@ function closeSidebarOnOutsideClick(event) {
 
 // ========== PASSWORD STRENGTH (REGISTER) ==========
 
+// ========== PASSWORD STRENGTH (REGISTER) ==========
 function initPasswordStrength() {
   const pass = document.getElementById("password");
   const strengthTextEl = document.getElementById("strengthText");
@@ -448,19 +449,51 @@ function initPasswordStrength() {
 
   if (!pass || !strengthTextEl || !bar) return;
 
-  // base visual + animación suave
-  bar.style.height = "8px";
-  bar.style.borderRadius = "999px";
-  bar.style.width = "0%";
-  bar.style.transition = "width 220ms ease, background-color 220ms ease, transform 220ms ease";
-  strengthTextEl.style.transition = "color 220ms ease";
+  // Track (contenedor de la barra)
+  const track = bar.parentElement;
 
-  // (opcional) si el contenedor no tiene fondo, esto ayuda a que se vea mejor
-  const wrap = bar.parentElement;
-  if (wrap) {
-    wrap.style.background = "rgba(0,0,0,0.08)";
-    wrap.style.borderRadius = "999px";
-    wrap.style.padding = "2px";
+  // Estética PRO: track + barra
+  if (track) {
+    track.style.background = "linear-gradient(90deg, rgba(0,0,0,0.08), rgba(0,0,0,0.04))";
+    track.style.borderRadius = "999px";
+    track.style.padding = "3px";
+    track.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.10)";
+    track.style.overflow = "hidden";
+  }
+
+  bar.style.height = "10px";
+  bar.style.width = "0%";
+  bar.style.borderRadius = "999px";
+  bar.style.transition = "width 260ms cubic-bezier(.2,.8,.2,1), filter 260ms ease";
+  bar.style.boxShadow = "0 6px 14px rgba(0,0,0,0.10)";
+  bar.style.filter = "saturate(1.15)";
+
+  // Badge PRO para el texto (sin cambiar el HTML)
+  strengthTextEl.style.display = "inline-block";
+  strengthTextEl.style.padding = "2px 10px";
+  strengthTextEl.style.borderRadius = "999px";
+  strengthTextEl.style.fontWeight = "700";
+  strengthTextEl.style.fontSize = "0.85rem";
+  strengthTextEl.style.letterSpacing = "0.2px";
+  strengthTextEl.style.transition = "color 220ms ease, background-color 220ms ease, transform 220ms ease";
+
+  // Shine (brillito animado encima de la barra)
+  let shine = bar.querySelector(".strength-shine");
+  if (!shine) {
+    shine = document.createElement("span");
+    shine.className = "strength-shine";
+    shine.style.cssText = `
+      position:absolute;
+      top:0; left:-40%;
+      height:100%;
+      width:40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+      transform: skewX(-20deg);
+      opacity: 0;
+      pointer-events:none;
+    `;
+    bar.style.position = "relative";
+    bar.appendChild(shine);
   }
 
   function scorePassword(p) {
@@ -480,49 +513,53 @@ function initPasswordStrength() {
     // penaliza si es muy corta
     if (p.length < 6) score = Math.min(score, 1);
 
-    return Math.min(score, 5); // 0..5
+    return Math.min(score, 5);
   }
 
-  function renderStrength() {
-    const s = scorePassword(pass.value);
+  function palette(level) {
+    // base + un segundo color para gradiente
+    if (level <= 1) return { label: "Débil", width: 22, c1: "#ef4444", c2: "#fb7185", badgeBg: "rgba(239,68,68,0.12)" };
+    if (level === 2) return { label: "Regular", width: 46, c1: "#f97316", c2: "#f59e0b", badgeBg: "rgba(249,115,22,0.14)" };
+    if (level === 3) return { label: "Media", width: 66, c1: "#eab308", c2: "#fde047", badgeBg: "rgba(234,179,8,0.16)" };
+    if (level === 4) return { label: "Fuerte", width: 85, c1: "#22c55e", c2: "#86efac", badgeBg: "rgba(34,197,94,0.14)" };
+    return { label: "Muy fuerte", width: 100, c1: "#16a34a", c2: "#4ade80", badgeBg: "rgba(22,163,74,0.14)" };
+  }
 
-    let label = "Débil";
-    let width = "20%";
-    let color = "#f44336"; // rojo
-
-    if (s <= 1) {
-      label = "Débil";
-      width = "20%";
-      color = "#f44336";
-    } else if (s === 2) {
-      label = "Regular";
-      width = "45%";
-      color = "#ff9800"; // naranja
-    } else if (s === 3) {
-      label = "Media";
-      width = "65%";
-      color = "#fbc02d"; // amarillo (más visible que #ffeb3b)
-    } else if (s === 4) {
-      label = "Fuerte";
-      width = "85%";
-      color = "#8bc34a"; // verde claro
-    } else {
-      label = "Muy fuerte";
-      width = "100%";
-      color = "#4caf50"; // verde
-    }
-
-    strengthTextEl.textContent = label;
-    strengthTextEl.style.color = color;
-
-    bar.style.backgroundColor = color;
-    bar.style.width = width;
-
-    // pequeño "bounce" para que se sienta que se mueve
-    bar.animate(
-      [{ transform: "scaleX(1)" }, { transform: "scaleX(1.03)" }, { transform: "scaleX(1)" }],
-      { duration: 220, easing: "ease-out" }
+  function runShine() {
+    // animación del brillito
+    shine.animate(
+      [
+        { left: "-40%", opacity: 0 },
+        { left: "10%", opacity: 0.55 },
+        { left: "120%", opacity: 0 }
+      ],
+      { duration: 520, easing: "ease-out" }
     );
+  }
+
+  let lastLabel = "";
+  function renderStrength() {
+    const level = scorePassword(pass.value);
+    const p = palette(level);
+
+    // barra con gradiente
+    bar.style.background = `linear-gradient(90deg, ${p.c1}, ${p.c2})`;
+    bar.style.width = `${p.width}%`;
+
+    // badge + color de texto
+    strengthTextEl.textContent = p.label;
+    strengthTextEl.style.color = p.c1;
+    strengthTextEl.style.backgroundColor = p.badgeBg;
+
+    // micro “pop” solo cuando cambia de nivel
+    if (p.label !== lastLabel) {
+      strengthTextEl.animate(
+        [{ transform: "scale(1)" }, { transform: "scale(1.06)" }, { transform: "scale(1)" }],
+        { duration: 220, easing: "ease-out" }
+      );
+      runShine();
+      lastLabel = p.label;
+    }
   }
 
   pass.addEventListener("input", renderStrength);
