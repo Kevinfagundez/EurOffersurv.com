@@ -93,7 +93,17 @@
                         </div>
                         <div class="form-group">
                             <label for="password">Contraseña</label>
-                            <input type="password" id="password" placeholder="••••••••" required>
+                            <div class="password-input">
+                                <input type="password" id="password" placeholder="••••••••" required>
+                                <button
+                                type="button"
+                                class="toggle-password"
+                                onclick="togglePassword('password')"
+                                aria-label="Mostrar contraseña"
+                                >
+                                👁️
+                                </button>
+                            </div>
                         </div>
                         <button type="submit" class="btn-login">Iniciar sesión</button>
                         <button type="button" class="btn-register" onclick="window.location.href='register.html'">Crear cuenta nueva</button>
