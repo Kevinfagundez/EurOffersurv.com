@@ -138,23 +138,12 @@
 
                 <div class="sidebar-divider"></div>
 
-                <a class="sidebar-link logout" id="logoutLink" href="/index.html">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"/>
-                    </svg>
-                    <span>Cerrar Sesión</span>
+                <a class="sidebar-link logout" onclick="handleLogout()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"/>
+                </svg>
+                <span>Cerrar Sesión</span>
                 </a>
-
-
-                <!-- POPUP LOGOUT (estilo notificaciones) -->
-                <div class="logout-pop" id="logoutPop" hidden>
-                <div class="logout-pop-head">Cerrar sesión</div>
-                <div class="logout-pop-body">¿Seguro que deseas cerrar tu sesión?</div>
-                <div class="logout-pop-actions">
-                    <button type="button" class="logout-pop-btn secondary" id="logoutCancelBtn">Cancelar</button>
-                    <button type="button" class="logout-pop-btn danger" id="logoutConfirmBtn">Cerrar sesión</button>
-                </div>
-                </div>
                 
             </nav>
             </aside>
@@ -191,147 +180,5 @@
     <script src="/auth.js"></script>
     <script src="/app.js"></script>
     <script src="/theoremreach-integration.js"></script>
-
-        <style>
-    /* Popup logout (sidebar) */
-    #sidebar { position: relative; }
-
-    .logout-pop {
-        position: absolute;
-        left: 14px;
-        bottom: 62px;
-        width: 270px;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-        border: 1px solid rgba(0,0,0,0.08);
-        z-index: 9999;
-        overflow: hidden;
-    }
-    .logout-pop::before {
-        content: "";
-        position: absolute;
-        left: 26px;
-        bottom: -8px;
-        width: 16px;
-        height: 16px;
-        background: #fff;
-        border-left: 1px solid rgba(0,0,0,0.08);
-        border-bottom: 1px solid rgba(0,0,0,0.08);
-        transform: rotate(45deg);
-    }
-    .logout-pop-head {
-        padding: 12px 14px;
-        font-weight: 800;
-        border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-    .logout-pop-body {
-        padding: 12px 14px;
-        color: #555;
-        font-size: 0.92rem;
-    }
-    .logout-pop-actions {
-        padding: 12px 14px;
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-        border-top: 1px solid rgba(0,0,0,0.06);
-        background: rgba(0,0,0,0.02);
-    }
-    .logout-pop-btn {
-        border: none;
-        border-radius: 10px;
-        padding: 9px 12px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-    .logout-pop-btn.secondary { background: #f1f1f1; color: #222; }
-    .logout-pop-btn.danger { background: #f44336; color: #fff; }
-    .logout-pop-btn:hover { opacity: 0.92; }
-    </style>
-
-    <script>
-    (function () {
-        const link = document.getElementById("logoutLink");
-        const sidebar = document.getElementById("sidebar");
-        if (!link || !sidebar) return;
-
-        // crear popup una sola vez
-        let pop = document.getElementById("logoutPop");
-        if (!pop) {
-        pop = document.createElement("div");
-        pop.id = "logoutPop";
-        pop.className = "logout-pop";
-        pop.hidden = true;
-        pop.innerHTML = `
-            <div class="logout-pop-head">Cerrar sesión</div>
-            <div class="logout-pop-body">¿Seguro que deseas cerrar tu sesión?</div>
-            <div class="logout-pop-actions">
-            <button type="button" class="logout-pop-btn secondary" id="logoutCancelBtn">Cancelar</button>
-            <button type="button" class="logout-pop-btn danger" id="logoutConfirmBtn">Cerrar sesión</button>
-            </div>
-        `;
-        sidebar.appendChild(pop);
-        }
-
-        const cancelBtn = () => document.getElementById("logoutCancelBtn");
-        const confirmBtn = () => document.getElementById("logoutConfirmBtn");
-
-        function open() { pop.hidden = false; }
-        function close() { pop.hidden = true; }
-        function toggle() { pop.hidden ? open() : close(); }
-
-        link.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggle();
-        });
-
-        document.addEventListener("click", (e) => {
-        if (pop.hidden) return;
-        if (pop.contains(e.target) || link.contains(e.target)) return;
-        close();
-        });
-
-        document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") close();
-        });
-
-        // cancelar
-        document.addEventListener("click", (e) => {
-        if (e.target && e.target.id === "logoutCancelBtn") {
-            e.preventDefault();
-            e.stopPropagation();
-            close();
-        }
-        });
-
-        // confirmar logout real
-        document.addEventListener("click", async (e) => {
-        if (!(e.target && e.target.id === "logoutConfirmBtn")) return;
-        e.preventDefault();
-        e.stopPropagation();
-
-        const btn = confirmBtn();
-        if (btn) {
-            btn.disabled = true;
-            btn.textContent = "Cerrando...";
-        }
-
-        try {
-            // si existe auth.logout úsalo, sino redirige igual
-            if (window.auth && typeof window.auth.logout === "function") {
-            await window.auth.logout();
-            }
-        } catch (err) {
-            console.error("Logout error:", err);
-        } finally {
-            close();
-            window.location.href = "/index.html";
-        }
-        });
-    })();
-    </script>
-
 </body>
 </html>
