@@ -48,8 +48,6 @@ async function handleLogin(event) {
 
   if (result.success) {
     showToast(result.message || "Login exitoso", "success");
-
-    // ✅ IMPORTANTE: marca "login reciente" para evitar el rebote del dashboard
     auth.markJustLoggedIn();
 
     setTimeout(() => {
@@ -64,14 +62,107 @@ function handleRegister() {
   window.location.href = ROUTES.register;
 }
 
-// ========== LOGOUT (POPUP PRO EN SIDEBAR) ==========
+// ========== LOGOUT (POPUP PRO SIN TOCAR dashboard.html) ==========
 
 let logoutBound = false;
 
-function openLogoutModal() {
-  const pop = document.getElementById("logoutPop");
+function injectLogoutPopupCSSOnce() {
+  if (document.getElementById("logout-pop-css")) return;
 
-  // fallback si por algo no existe el popup en el HTML
+  const style = document.createElement("style");
+  style.id = "logout-pop-css";
+  style.textContent = `
+    /* Popup logout dentro del sidebar (estilo pro, tipo dropdown) */
+    .logout-pop {
+      position: absolute;
+      left: 14px;
+      bottom: 62px;
+      width: 280px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      border: 1px solid rgba(0,0,0,0.08);
+      z-index: 9999;
+      overflow: hidden;
+    }
+    .logout-pop::before{
+      content:"";
+      position:absolute;
+      left: 26px;
+      bottom:-8px;
+      width:16px;
+      height:16px;
+      background:#fff;
+      border-left: 1px solid rgba(0,0,0,0.08);
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      transform: rotate(45deg);
+    }
+    .logout-pop-head{
+      padding: 12px 14px;
+      font-weight: 800;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .logout-pop-body{
+      padding: 12px 14px;
+      color:#555;
+      font-size: .92rem;
+      line-height: 1.35;
+    }
+    .logout-pop-actions{
+      padding: 12px 14px;
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      background: rgba(0,0,0,0.02);
+    }
+    .logout-pop-btn{
+      border: none;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: 700;
+      cursor:pointer;
+    }
+    .logout-pop-btn.secondary{ background:#f1f1f1; color:#222; }
+    .logout-pop-btn.danger{ background:#f44336; color:#fff; }
+    .logout-pop-btn:hover{ opacity:.92; }
+    .logout-pop-btn:disabled{ opacity:.65; cursor:not-allowed; }
+  `;
+  document.head.appendChild(style);
+}
+
+function ensureLogoutPopup() {
+  const sidebar = document.getElementById("sidebar");
+  if (!sidebar) return null;
+
+  // asegurar positioning para que absolute funcione bien
+  const cs = getComputedStyle(sidebar);
+  if (cs.position === "static") sidebar.style.position = "relative";
+
+  let pop = document.getElementById("logoutPop");
+  if (pop) return pop;
+
+  pop = document.createElement("div");
+  pop.id = "logoutPop";
+  pop.className = "logout-pop";
+  pop.hidden = true;
+  pop.innerHTML = `
+    <div class="logout-pop-head">Cerrar sesión</div>
+    <div class="logout-pop-body">¿Seguro que deseas cerrar tu sesión?</div>
+    <div class="logout-pop-actions">
+      <button type="button" class="logout-pop-btn secondary" id="logoutCancelBtn">Cancelar</button>
+      <button type="button" class="logout-pop-btn danger" id="logoutConfirmBtn">Cerrar sesión</button>
+    </div>
+  `;
+  sidebar.appendChild(pop);
+  return pop;
+}
+
+function openLogoutModal() {
+  injectLogoutPopupCSSOnce();
+  const pop = ensureLogoutPopup();
+
+  // fallback ultra seguro
   if (!pop) {
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
       auth.logout().finally(() => (window.location.href = ROUTES.index));
@@ -80,6 +171,7 @@ function openLogoutModal() {
   }
 
   pop.hidden = false;
+  document.getElementById("logoutConfirmBtn")?.focus();
 }
 
 function closeLogoutModal() {
@@ -92,63 +184,31 @@ function initLogoutModal() {
   if (logoutBound) return;
   logoutBound = true;
 
-  const pop = document.getElementById("logoutPop");
-  const cancelBtn = document.getElementById("logoutCancelBtn");
-  const confirmBtn = document.getElementById("logoutConfirmBtn");
+  // Solo lo iniciamos en dashboard
+  const isDashboard = !!document.querySelector(".dashboard-container");
+  if (!isDashboard) return;
+
+  injectLogoutPopupCSSOnce();
+  ensureLogoutPopup();
+
   const sidebar = document.getElementById("sidebar");
   const logoutLink = document.querySelector(".sidebar-link.logout");
 
-  // Si no existe el popup, igual dejamos el fallback por confirm cuando toquen el link
-  if (!pop || !cancelBtn || !confirmBtn) {
-    logoutLink?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-        auth.logout().finally(() => (window.location.href = ROUTES.index));
-      }
-    });
-    return;
-  }
-
-  // ✅ Esto garantiza que funcione incluso si el inline onclick falla
+  // Por si el inline onclick falla, igual lo enlazamos
   logoutLink?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
     handleLogout();
   });
 
-  cancelBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    closeLogoutModal();
-  });
-
-  confirmBtn.addEventListener("click", async (e) => {
-    e.stopPropagation();
-    confirmBtn.disabled = true;
-    const prev = confirmBtn.textContent;
-    confirmBtn.textContent = "Cerrando...";
-
-    try {
-      const result = await auth.logout();
-      showToast(result?.message || "Sesión cerrada", "success");
-      closeLogoutModal();
-      setTimeout(() => (window.location.href = ROUTES.index), 250);
-    } catch (err) {
-      console.error("Logout error:", err);
-      showToast("No se pudo cerrar sesión, intenta nuevamente", "error");
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = prev || "Cerrar sesión";
-    }
-  });
-
-  // click afuera cierra
   document.addEventListener("click", (e) => {
-    if (pop.hidden) return;
+    const pop = document.getElementById("logoutPop");
+    if (!pop || pop.hidden) return;
 
-    const inside = pop.contains(e.target);
     const clickedLogout = e.target.closest?.(".sidebar-link.logout");
-    if (inside || clickedLogout) return;
+    if (pop.contains(e.target) || clickedLogout) return;
 
+    // click dentro del sidebar pero fuera del pop -> cerrar
     if (sidebar && sidebar.contains(e.target)) {
       closeLogoutModal();
       return;
@@ -157,16 +217,48 @@ function initLogoutModal() {
     closeLogoutModal();
   });
 
-  // ESC cierra
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeLogoutModal();
   });
+
+  // Delegación: botones del popup (porque los creamos por JS)
+  document.addEventListener("click", async (e) => {
+    if (e.target?.id === "logoutCancelBtn") {
+      e.preventDefault();
+      e.stopPropagation();
+      closeLogoutModal();
+      return;
+    }
+
+    if (e.target?.id === "logoutConfirmBtn") {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const btn = e.target;
+      btn.disabled = true;
+      const prev = btn.textContent;
+      btn.textContent = "Cerrando...";
+
+      try {
+        const result = await auth.logout();
+        showToast(result?.message || "Sesión cerrada", "success");
+      } catch (err) {
+        console.error("Logout error:", err);
+        showToast("No se pudo cerrar sesión, intenta nuevamente", "error");
+      } finally {
+        closeLogoutModal();
+        setTimeout(() => (window.location.href = ROUTES.index), 250);
+        btn.disabled = false;
+        btn.textContent = prev || "Cerrar sesión";
+      }
+    }
+  });
 }
 
-async function handleLogout() {
+function handleLogout() {
   const pop = document.getElementById("logoutPop");
-  if (!pop) return openLogoutModal();
-  pop.hidden ? openLogoutModal() : closeLogoutModal();
+  if (!pop || pop.hidden) openLogoutModal();
+  else closeLogoutModal();
 }
 
 // ========== DASHBOARD FUNCTIONS ==========
