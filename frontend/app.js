@@ -184,44 +184,44 @@ function initLogoutModal() {
   if (logoutBound) return;
   logoutBound = true;
 
-  // Solo en dashboard
-  if (!document.querySelector(".dashboard-container")) return;
+  // Solo lo iniciamos en dashboard
+  const isDashboard = !!document.querySelector(".dashboard-container");
+  if (!isDashboard) return;
 
   injectLogoutPopupCSSOnce();
   ensureLogoutPopup();
 
   const sidebar = document.getElementById("sidebar");
+  const logoutLink = document.querySelector(".sidebar-link.logout");
 
-  // Click afuera cierra (sin tocar el link del sidebar)
+  // Por si el inline onclick falla, igual lo enlazamos
+  logoutLink?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleLogout();
+  });
+
   document.addEventListener("click", (e) => {
     const pop = document.getElementById("logoutPop");
     if (!pop || pop.hidden) return;
 
-    const clickedInsidePop = pop.contains(e.target);
-    const clickedLogoutLink = e.target.closest?.(".sidebar-link.logout");
+    const clickedLogout = e.target.closest?.(".sidebar-link.logout");
+    if (pop.contains(e.target) || clickedLogout) return;
 
-    // si clickeó el link "Cerrar sesión", NO cerramos acá (lo maneja handleLogout)
-    if (clickedLogoutLink) return;
-
-    // si clickeó dentro del popup, no cierres
-    if (clickedInsidePop) return;
-
-    // si clickeó dentro del sidebar pero fuera del pop => cerrar
+    // click dentro del sidebar pero fuera del pop -> cerrar
     if (sidebar && sidebar.contains(e.target)) {
       closeLogoutModal();
       return;
     }
 
-    // cualquier otro click => cerrar
     closeLogoutModal();
   });
 
-  // ESC cierra
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeLogoutModal();
   });
 
-  // Botones (delegación)
+  // Delegación: botones del popup (porque los creamos por JS)
   document.addEventListener("click", async (e) => {
     if (e.target?.id === "logoutCancelBtn") {
       e.preventDefault();
@@ -245,33 +245,19 @@ function initLogoutModal() {
       } catch (err) {
         console.error("Logout error:", err);
         showToast("No se pudo cerrar sesión, intenta nuevamente", "error");
-        // si falla, no redirigimos
+      } finally {
+        closeLogoutModal();
+        setTimeout(() => (window.location.href = ROUTES.index), 250);
         btn.disabled = false;
         btn.textContent = prev || "Cerrar sesión";
-        return;
       }
-
-      closeLogoutModal();
-      setTimeout(() => (window.location.href = ROUTES.index), 250);
     }
   });
 }
 
 function handleLogout() {
-  // IMPORTANTE: esto es lo que llama tu HTML con onclick="handleLogout()"
-  // Por eso, acá NO usamos preventDefault.
-  const pop = ensureLogoutPopup();
-
-  // fallback ultra seguro (si no hay sidebar por algún motivo)
-  if (!pop) {
-    if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-      auth.logout().finally(() => (window.location.href = ROUTES.index));
-    }
-    return;
-  }
-
-  // toggle
-  if (pop.hidden) openLogoutModal();
+  const pop = document.getElementById("logoutPop");
+  if (!pop || pop.hidden) openLogoutModal();
   else closeLogoutModal();
 }
 
