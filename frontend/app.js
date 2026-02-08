@@ -440,223 +440,97 @@ function closeSidebarOnOutsideClick(event) {
 }
 
 // ========== PASSWORD STRENGTH (REGISTER) ==========
-
 // ========== PASSWORD STRENGTH (REGISTER) ==========
 function initPasswordStrength() {
   const pass = document.getElementById("password");
   const strengthTextEl = document.getElementById("strengthText");
+  const strengthWrap = document.querySelector(".password-strength");
   const bar = document.querySelector(".password-strength .strength-bar");
 
-  if (!pass || !strengthTextEl || !bar) return;
+  if (!pass || !strengthTextEl || !strengthWrap || !bar) return;
 
-  const track = bar.parentElement;
+  // Limpia "extras" feos si quedaron de intentos anteriores
+  strengthWrap.querySelectorAll(".pw-strength-extra").forEach((n) => n.remove());
+  if (bar.querySelector(".strength-shine")) bar.querySelector(".strength-shine").remove();
 
-  // ---- Track PRO (contenedor) ----
-  if (track) {
-    track.style.position = "relative";
-    track.style.background = "rgba(0,0,0,0.05)";
-    track.style.border = "1px solid rgba(0,0,0,0.08)";
-    track.style.borderRadius = "999px";
-    track.style.padding = "3px";
-    track.style.overflow = "hidden";
-    track.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.10)";
+  // Asegurar layout prolijo del bloque
+  strengthWrap.style.display = "grid";
+  strengthWrap.style.gap = "8px";
+  strengthWrap.style.marginTop = "10px";
+
+  // Crear un track SOLO para la barra (si no existe)
+  let track = strengthWrap.querySelector(".pw-track");
+  if (!track) {
+    track = document.createElement("div");
+    track.className = "pw-track";
+
+    // Insertar track antes de la barra y mover la barra adentro
+    strengthWrap.insertBefore(track, bar);
+    track.appendChild(bar);
   }
 
-  // ---- Barra PRO ----
-  bar.style.height = "10px";
+  // Estilos minimal y modernos
+  track.style.height = "8px";
+  track.style.borderRadius = "999px";
+  track.style.background = "rgba(0,0,0,0.10)";
+  track.style.boxShadow = "inset 0 1px 2px rgba(0,0,0,0.12)";
+  track.style.overflow = "hidden";
+
+  bar.style.height = "100%";
   bar.style.width = "0%";
   bar.style.borderRadius = "999px";
-  bar.style.transition = "width 320ms cubic-bezier(.2,.85,.25,1), background 240ms ease, box-shadow 240ms ease";
-  bar.style.position = "relative";
+  bar.style.transition = "width 220ms ease, background-color 220ms ease, filter 220ms ease";
+  bar.style.filter = "saturate(1.15)";
 
-  // Glow suave (queda lindo pero no exagerado)
-  function setGlow(color) {
-    bar.style.boxShadow = `0 8px 18px rgba(0,0,0,0.10), 0 0 0 1px rgba(255,255,255,0.35) inset, 0 0 16px ${color}33`;
-  }
-
-  // ---- Badge PRO para el texto ----
-  strengthTextEl.style.display = "inline-flex";
-  strengthTextEl.style.alignItems = "center";
-  strengthTextEl.style.gap = "8px";
-  strengthTextEl.style.padding = "2px 10px";
-  strengthTextEl.style.borderRadius = "999px";
+  // Texto (solo coloreamos el nivel)
   strengthTextEl.style.fontWeight = "700";
-  strengthTextEl.style.fontSize = "0.85rem";
-  strengthTextEl.style.letterSpacing = "0.2px";
-  strengthTextEl.style.transition = "color 220ms ease, background-color 220ms ease";
+  strengthTextEl.style.transition = "color 180ms ease";
 
-  // ---- Elementos extra: dots + tip (se inyectan por JS, sin tocar HTML) ----
-  // buscamos el contenedor de .password-strength para insertar debajo
-  const strengthWrap = track?.closest(".password-strength");
-  let extra = strengthWrap?.querySelector(".pw-strength-extra");
+  function scorePassword(p) {
+    let score = 0;
+    if (!p) return 0;
 
-  if (strengthWrap && !extra) {
-    extra = document.createElement("div");
-    extra.className = "pw-strength-extra";
-    extra.style.cssText = `
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    `;
+    if (p.length >= 8) score += 1;
+    if (p.length >= 12) score += 1;
+    if (/[a-z]/.test(p)) score += 1;
+    if (/[A-Z]/.test(p)) score += 1;
+    if (/\d/.test(p)) score += 1;
+    if (/[^A-Za-z0-9]/.test(p)) score += 1;
 
-    // dots
-    const dots = document.createElement("div");
-    dots.className = "pw-strength-dots";
-    dots.style.cssText = `
-      display:flex;
-      gap:6px;
-      align-items:center;
-    `;
-
-    for (let i = 0; i < 4; i++) {
-      const dot = document.createElement("span");
-      dot.className = "pw-dot";
-      dot.style.cssText = `
-        width:9px;height:9px;border-radius:999px;
-        background: rgba(0,0,0,0.12);
-        border: 1px solid rgba(0,0,0,0.10);
-        transition: transform 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
-      `;
-      dots.appendChild(dot);
-    }
-
-    // tip
-    const tip = document.createElement("div");
-    tip.className = "pw-strength-tip";
-    tip.style.cssText = `
-      font-size: 0.78rem;
-      color: rgba(0,0,0,0.55);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 60%;
-    `;
-    tip.textContent = "Usa 8+ caracteres, mayúsculas y números.";
-
-    extra.appendChild(dots);
-    extra.appendChild(tip);
-
-    strengthWrap.appendChild(extra);
+    if (p.length < 6) score = Math.min(score, 1);
+    return Math.min(score, 5);
   }
 
-  const dotsEls = extra ? Array.from(extra.querySelectorAll(".pw-dot")) : [];
-  const tipEl = extra ? extra.querySelector(".pw-strength-tip") : null;
-
-  // ---- Shine (brillito) ----
-  let shine = bar.querySelector(".strength-shine");
-  if (!shine) {
-    shine = document.createElement("span");
-    shine.className = "strength-shine";
-    shine.style.cssText = `
-      position:absolute;
-      inset:0;
-      transform: translateX(-120%) skewX(-18deg);
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
-      opacity: 0;
-      pointer-events:none;
-    `;
-    bar.appendChild(shine);
+  function mapStrength(score) {
+    // 0..5 => 4 estados visuales
+    if (score <= 1) return { label: "Débil", width: 25, color: "#ef4444" };      // rojo
+    if (score === 2) return { label: "Regular", width: 50, color: "#f97316" };   // naranja
+    if (score === 3) return { label: "Media", width: 70, color: "#eab308" };     // amarillo
+    return { label: "Fuerte", width: 100, color: "#22c55e" };                   // verde
   }
 
-  function runShine() {
-    shine.animate(
-      [
-        { transform: "translateX(-120%) skewX(-18deg)", opacity: 0 },
-        { transform: "translateX(-20%) skewX(-18deg)", opacity: 0.55 },
-        { transform: "translateX(140%) skewX(-18deg)", opacity: 0 }
-      ],
-      { duration: 560, easing: "ease-out" }
-    );
-  }
-
-  // ---- Score realista + tips ----
-  function analyze(p) {
-    const res = {
-      score: 0,
-      missing: [],
-    };
-    if (!p) {
-      res.missing = ["Escribe una contraseña."];
-      return res;
-    }
-
-    const hasLower = /[a-z]/.test(p);
-    const hasUpper = /[A-Z]/.test(p);
-    const hasNum = /\d/.test(p);
-    const hasSym = /[^A-Za-z0-9]/.test(p);
-
-    if (p.length >= 8) res.score += 1; else res.missing.push("8+ caracteres");
-    if (p.length >= 12) res.score += 1; else if (p.length >= 8) res.missing.push("12+ (mejor)");
-    if (hasLower) res.score += 1; else res.missing.push("minúscula");
-    if (hasUpper) res.score += 1; else res.missing.push("mayúscula");
-    if (hasNum) res.score += 1; else res.missing.push("número");
-    if (hasSym) res.score += 1; else res.missing.push("símbolo");
-
-    if (p.length < 6) res.score = Math.min(res.score, 1);
-
-    // normaliza 0..5 (lo comprimimos visualmente a 1..4 dots)
-    res.score = Math.min(res.score, 5);
-    return res;
-  }
-
-  function palette(score) {
-    // score 0..5 => nivel 0..4
-    const level = score <= 1 ? 1 : score === 2 ? 2 : score === 3 ? 3 : 4;
-
-    if (level === 1) return { level, label: "Débil", width: 22, c1: "#ef4444", c2: "#fb7185", badgeBg: "rgba(239,68,68,0.14)" };
-    if (level === 2) return { level, label: "Regular", width: 46, c1: "#f97316", c2: "#fbbf24", badgeBg: "rgba(249,115,22,0.16)" };
-    if (level === 3) return { level, label: "Media", width: 68, c1: "#eab308", c2: "#fde047", badgeBg: "rgba(234,179,8,0.16)" };
-    return { level, label: "Fuerte", width: 100, c1: "#22c55e", c2: "#86efac", badgeBg: "rgba(34,197,94,0.16)" };
-  }
-
-  let lastLevel = -1;
+  let lastLabel = "";
   function render() {
-    const { score, missing } = analyze(pass.value);
-    const p = palette(score);
+    const s = scorePassword(pass.value);
+    const v = mapStrength(s);
 
-    // Barra con gradiente pro
-    bar.style.background = `linear-gradient(90deg, ${p.c1}, ${p.c2})`;
-    bar.style.width = `${p.width}%`;
-    setGlow(p.c1);
+    strengthTextEl.textContent = v.label;
+    strengthTextEl.style.color = v.color;
 
-    // Badge
-    strengthTextEl.textContent = p.label;
-    strengthTextEl.style.color = p.c1;
-    strengthTextEl.style.backgroundColor = p.badgeBg;
+    bar.style.backgroundColor = v.color;
+    bar.style.width = `${pass.value ? v.width : 0}%`;
 
-    // Dots
-    if (dotsEls.length) {
-      dotsEls.forEach((d, idx) => {
-        const on = idx < p.level;
-        d.style.backgroundColor = on ? p.c1 : "rgba(0,0,0,0.12)";
-        d.style.boxShadow = on ? `0 0 0 3px ${p.c1}22` : "none";
-        d.style.transform = on ? "scale(1.08)" : "scale(1)";
-      });
-    }
-
-    // Tip
-    if (tipEl) {
-      if (!pass.value) tipEl.textContent = "Usa 8+ caracteres, mayúsculas y números.";
-      else if (p.level >= 4) tipEl.textContent = "Excelente. Difícil de adivinar ✅";
-      else tipEl.textContent = "Suma: " + missing.slice(0, 3).join(" · ");
-    }
-
-    // Animación suave solo cuando cambia de nivel
-    if (p.level !== lastLevel) {
-      runShine();
-      strengthTextEl.animate(
-        [{ transform: "translateY(0)" }, { transform: "translateY(-1px)" }, { transform: "translateY(0)" }],
-        { duration: 220, easing: "ease-out" }
-      );
-      lastLevel = p.level;
+    // micro animación MUY sutil, sin deformar nada
+    if (v.label !== lastLabel) {
+      bar.animate([{ opacity: 0.85 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
+      lastLabel = v.label;
     }
   }
 
   pass.addEventListener("input", render);
   render();
 }
+
 
 // ========== INIT ==========
 
