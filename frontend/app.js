@@ -64,98 +64,125 @@ function handleRegister() {
   window.location.href = ROUTES.register;
 }
 
-// ========== LOGOUT (MODAL PRO) ==========
+// ========== LOGOUT (POPUP PRO EN SIDEBAR) ==========
 
-let logoutModalBound = false;
+let logoutBound = false;
 
 function openLogoutModal() {
-  const modal = document.getElementById("logoutModal");
-  if (!modal) {
+  const pop = document.getElementById("logoutPop");
+
+  // fallback si por algo no existe el popup en el HTML
+  if (!pop) {
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-      auth.logout().finally(() => {
-        window.location.href = ROUTES.index;
-      });
+      auth.logout().finally(() => (window.location.href = ROUTES.index));
     }
     return;
   }
 
-  modal.hidden = false;
-  document.getElementById("logoutConfirmBtn")?.focus();
+  pop.hidden = false;
 }
 
 function closeLogoutModal() {
-  const modal = document.getElementById("logoutModal");
-  if (!modal) return;
-  modal.hidden = true;
+  const pop = document.getElementById("logoutPop");
+  if (!pop) return;
+  pop.hidden = true;
 }
 
 function initLogoutModal() {
-  if (logoutModalBound) return;
-  logoutModalBound = true;
+  if (logoutBound) return;
+  logoutBound = true;
 
-  const modal = document.getElementById("logoutModal");
+  const pop = document.getElementById("logoutPop");
   const cancelBtn = document.getElementById("logoutCancelBtn");
-  const closeBtn = document.getElementById("logoutCloseBtn");
   const confirmBtn = document.getElementById("logoutConfirmBtn");
+  const sidebar = document.getElementById("sidebar");
+  const logoutLink = document.querySelector(".sidebar-link.logout");
 
-  if (!modal || !cancelBtn || !closeBtn || !confirmBtn) return;
+  // Si no existe el popup, igual dejamos el fallback por confirm cuando toquen el link
+  if (!pop || !cancelBtn || !confirmBtn) {
+    logoutLink?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+        auth.logout().finally(() => (window.location.href = ROUTES.index));
+      }
+    });
+    return;
+  }
 
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeLogoutModal();
+  // ✅ Esto garantiza que funcione incluso si el inline onclick falla
+  logoutLink?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleLogout();
   });
 
-  cancelBtn.addEventListener("click", closeLogoutModal);
-  closeBtn.addEventListener("click", closeLogoutModal);
-
-  document.addEventListener("keydown", (e) => {
-    if (!modal.hidden && e.key === "Escape") closeLogoutModal();
+  cancelBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeLogoutModal();
   });
 
-  confirmBtn.addEventListener("click", async () => {
+  confirmBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
     confirmBtn.disabled = true;
-    const prevText = confirmBtn.textContent;
+    const prev = confirmBtn.textContent;
     confirmBtn.textContent = "Cerrando...";
 
     try {
       const result = await auth.logout();
-      showToast(result.message || "Sesión cerrada", "success");
-    } catch (e) {
-      console.error("Logout error:", e);
-      showToast("No se pudo cerrar sesión, intenta nuevamente", "error");
-    } finally {
+      showToast(result?.message || "Sesión cerrada", "success");
       closeLogoutModal();
-      setTimeout(() => {
-        window.location.href = ROUTES.index;
-      }, 250);
-
+      setTimeout(() => (window.location.href = ROUTES.index), 250);
+    } catch (err) {
+      console.error("Logout error:", err);
+      showToast("No se pudo cerrar sesión, intenta nuevamente", "error");
       confirmBtn.disabled = false;
-      confirmBtn.textContent = prevText || "Sí, cerrar sesión";
+      confirmBtn.textContent = prev || "Cerrar sesión";
     }
+  });
+
+  // click afuera cierra
+  document.addEventListener("click", (e) => {
+    if (pop.hidden) return;
+
+    const inside = pop.contains(e.target);
+    const clickedLogout = e.target.closest?.(".sidebar-link.logout");
+    if (inside || clickedLogout) return;
+
+    if (sidebar && sidebar.contains(e.target)) {
+      closeLogoutModal();
+      return;
+    }
+
+    closeLogoutModal();
+  });
+
+  // ESC cierra
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeLogoutModal();
   });
 }
 
 async function handleLogout() {
-  openLogoutModal();
+  const pop = document.getElementById("logoutPop");
+  if (!pop) return openLogoutModal();
+  pop.hidden ? openLogoutModal() : closeLogoutModal();
 }
 
 // ========== DASHBOARD FUNCTIONS ==========
 
 async function initDashboard() {
-  // ✅ FIX CLAVE: NO redirigir inmediatamente.
-  // Hacemos reintentos reales contra backend para evitar el "me bota".
-  // Si hay login reciente, damos un "grace period" para que la cookie/sesión quede lista.
   const session = await auth.requireAuth({
     redirectTo: ROUTES.index,
-    retries: 8,        // ~8 intentos
-    delayMs: 450,      // cada 450ms -> ~3.6s total
-    graceMs: 5000      // si vienes de login reciente, hasta 5s sin botar
+    retries: 8,
+    delayMs: 450,
+    graceMs: 5000,
   });
 
   if (!session.ok) return;
 
   const user = session.user || null;
   if (!user) {
-    // fallback ultra defensivo (no debería pasar)
     window.location.href = ROUTES.index;
     return;
   }
@@ -178,7 +205,6 @@ function updateDashboardUserInfo(user) {
 
   document.querySelectorAll(".user-name").forEach((el) => (el.textContent = fullName));
 
-  // balance
   if (user.balance !== undefined && user.balance !== null) {
     const bal = Number(user.balance);
     if (!Number.isNaN(bal)) {
@@ -440,7 +466,7 @@ function closeSidebarOnOutsideClick(event) {
 }
 
 // ========== PASSWORD STRENGTH (REGISTER) ==========
-// ========== PASSWORD STRENGTH (REGISTER) ==========
+
 function initPasswordStrength() {
   const pass = document.getElementById("password");
   const strengthTextEl = document.getElementById("strengthText");
@@ -449,27 +475,21 @@ function initPasswordStrength() {
 
   if (!pass || !strengthTextEl || !strengthWrap || !bar) return;
 
-  // Limpia "extras" feos si quedaron de intentos anteriores
   strengthWrap.querySelectorAll(".pw-strength-extra").forEach((n) => n.remove());
   if (bar.querySelector(".strength-shine")) bar.querySelector(".strength-shine").remove();
 
-  // Asegurar layout prolijo del bloque
   strengthWrap.style.display = "grid";
   strengthWrap.style.gap = "8px";
   strengthWrap.style.marginTop = "10px";
 
-  // Crear un track SOLO para la barra (si no existe)
   let track = strengthWrap.querySelector(".pw-track");
   if (!track) {
     track = document.createElement("div");
     track.className = "pw-track";
-
-    // Insertar track antes de la barra y mover la barra adentro
     strengthWrap.insertBefore(track, bar);
     track.appendChild(bar);
   }
 
-  // Estilos minimal y modernos
   track.style.height = "8px";
   track.style.borderRadius = "999px";
   track.style.background = "rgba(0,0,0,0.10)";
@@ -482,31 +502,27 @@ function initPasswordStrength() {
   bar.style.transition = "width 220ms ease, background-color 220ms ease, filter 220ms ease";
   bar.style.filter = "saturate(1.15)";
 
-  // Texto (solo coloreamos el nivel)
   strengthTextEl.style.fontWeight = "700";
   strengthTextEl.style.transition = "color 180ms ease";
 
   function scorePassword(p) {
     let score = 0;
     if (!p) return 0;
-
     if (p.length >= 8) score += 1;
     if (p.length >= 12) score += 1;
     if (/[a-z]/.test(p)) score += 1;
     if (/[A-Z]/.test(p)) score += 1;
     if (/\d/.test(p)) score += 1;
     if (/[^A-Za-z0-9]/.test(p)) score += 1;
-
     if (p.length < 6) score = Math.min(score, 1);
     return Math.min(score, 5);
   }
 
   function mapStrength(score) {
-    // 0..5 => 4 estados visuales
-    if (score <= 1) return { label: "Débil", width: 25, color: "#ef4444" };      // rojo
-    if (score === 2) return { label: "Regular", width: 50, color: "#f97316" };   // naranja
-    if (score === 3) return { label: "Media", width: 70, color: "#eab308" };     // amarillo
-    return { label: "Fuerte", width: 100, color: "#22c55e" };                   // verde
+    if (score <= 1) return { label: "Débil", width: 25, color: "#ef4444" };
+    if (score === 2) return { label: "Regular", width: 50, color: "#f97316" };
+    if (score === 3) return { label: "Media", width: 70, color: "#eab308" };
+    return { label: "Fuerte", width: 100, color: "#22c55e" };
   }
 
   let lastLabel = "";
@@ -520,7 +536,6 @@ function initPasswordStrength() {
     bar.style.backgroundColor = v.color;
     bar.style.width = `${pass.value ? v.width : 0}%`;
 
-    // micro animación MUY sutil, sin deformar nada
     if (v.label !== lastLabel) {
       bar.animate([{ opacity: 0.85 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
       lastLabel = v.label;
@@ -530,7 +545,6 @@ function initPasswordStrength() {
   pass.addEventListener("input", render);
   render();
 }
-
 
 // ========== INIT ==========
 
@@ -546,8 +560,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     if (auth.redirectIfAuthenticated) auth.redirectIfAuthenticated(ROUTES.dashboard);
-
-    // ✅ activa el medidor de seguridad en register.html
     initPasswordStrength();
   }
 
@@ -590,8 +602,8 @@ function showToast(message, type = "info") {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// ========== TOGGLE PASSWORD (REGISTER) ==========
-// Muestra/oculta la contraseña para inputs como #password y #confirmPassword
+// ========== TOGGLE PASSWORD (REGISTER/LOGIN) ==========
+
 function togglePassword(inputId) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -603,8 +615,7 @@ function togglePassword(inputId) {
   input.type = isHidden ? "text" : "password";
 
   if (btn) {
-    // ✅ ahora sí cambia
-    btn.textContent = isHidden ? "👁️" : "👁️";
+    btn.textContent = "👁️";
     btn.setAttribute("aria-label", isHidden ? "Ocultar contraseña" : "Mostrar contraseña");
     btn.setAttribute("aria-pressed", String(isHidden));
   }
