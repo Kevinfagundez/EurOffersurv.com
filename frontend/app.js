@@ -509,7 +509,7 @@ function togglePassword(inputId) {
 
   // Cambia el icono si el botón existe (opcional, pero útil)
   if (btn) {
-    btn.textContent = isHidden ? "🙈" : "👁️";
+    btn.textContent = isHidden ? "👁️" : "👁️";
     btn.setAttribute(
       "aria-label",
       isHidden ? "Ocultar contraseña" : "Mostrar contraseña"
