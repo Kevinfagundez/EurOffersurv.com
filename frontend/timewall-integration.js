@@ -1,6 +1,7 @@
 /**
  * TimeWall Integration Script
  * Gestiona la integración con TimeWall Offerwall
+ * Versión simplificada compatible con auth.js de EurOffersurv
  */
 
 (function() {
@@ -40,7 +41,7 @@
           return;
         }
 
-        // Obtener el ID del usuario
+        // Obtener el ID del usuario usando auth.js
         await this.getUserId();
 
         if (!this.userId) {
@@ -59,66 +60,53 @@
     }
 
     /**
-     * Obtiene el ID del usuario desde la sesión
-     * Utiliza el mismo método que auth.js para obtener datos del usuario
+     * Obtiene el ID del usuario usando auth.requireAuth
+     * que es el método que usa tu sistema
      */
     async getUserId() {
       try {
-        // Intentar obtener desde auth.js primero si está disponible
-        if (window.auth && typeof window.auth.getSession === 'function') {
-          const session = await window.auth.getSession();
-          if (session && session.user && session.user.id) {
-            this.userId = session.user.id;
-            console.log('[TimeWall] ID de usuario obtenido desde auth.js:', this.userId);
-            return true;
-          }
+        console.log('[TimeWall] Verificando autenticación...');
+
+        // Verificar que auth.js esté disponible
+        if (!window.auth || typeof window.auth.requireAuth !== 'function') {
+          console.error('[TimeWall] auth.js no está disponible o no tiene requireAuth');
+          return false;
         }
 
-        // Fallback: intentar fetch al endpoint
-        const response = await fetch('../backend/api/user-data.php', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          }
+        // Usar el mismo método que usa el dashboard (auth.requireAuth)
+        const session = await window.auth.requireAuth({
+          redirectTo: '/index.html',
+          retries: 3,
+          delayMs: 300,
+          graceMs: 2000,
         });
 
-        if (!response.ok) {
-          console.error('[TimeWall] Response status:', response.status);
-          throw new Error(`Error al obtener datos del usuario (${response.status})`);
+        console.log('[TimeWall] Respuesta de auth.requireAuth:', session);
+
+        if (!session.ok) {
+          console.error('[TimeWall] Sesión no válida');
+          return false;
         }
 
-        const data = await response.json();
-        console.log('[TimeWall] Respuesta del servidor:', data);
-        
-        if (data.success && data.user && data.user.id) {
-          this.userId = data.user.id;
-          console.log('[TimeWall] ID de usuario obtenido del endpoint:', this.userId);
+        const user = session.user || null;
+        if (!user) {
+          console.error('[TimeWall] Usuario no encontrado en sesión');
+          return false;
+        }
+
+        // Intentar obtener el ID del usuario de diferentes formas
+        this.userId = user.id || user.user_id || user.userId;
+
+        if (this.userId) {
+          console.log('[TimeWall] ID de usuario obtenido exitosamente:', this.userId);
           return true;
         } else {
-          console.error('[TimeWall] Respuesta inválida:', data);
+          console.error('[TimeWall] No se encontró ID en el objeto user:', user);
           return false;
         }
 
       } catch (error) {
         console.error('[TimeWall] Error al obtener ID del usuario:', error);
-        console.error('[TimeWall] Intentando obtener desde sessionStorage...');
-        
-        // Último intento: buscar en sessionStorage
-        try {
-          const sessionData = sessionStorage.getItem('euroffersurv_session');
-          if (sessionData) {
-            const parsed = JSON.parse(sessionData);
-            if (parsed && parsed.user && parsed.user.id) {
-              this.userId = parsed.user.id;
-              console.log('[TimeWall] ID de usuario obtenido desde sessionStorage:', this.userId);
-              return true;
-            }
-          }
-        } catch (storageError) {
-          console.error('[TimeWall] Error al leer sessionStorage:', storageError);
-        }
-        
         return false;
       }
     }
