@@ -235,24 +235,31 @@ function updateDashboardUserInfo(user) {
 // ========== SIDEBAR NAV (ALERTS) ==========
 // ✅ Agregado sin modificar tu lógica existente.
 // Tu HTML llama navigateTo('inicio' | 'encuestas' | 'ofertas' | 'recompensas' | 'soporte')
+// ✅ Navegación real por secciones (Inicio / Encuestas / etc.)
 function navigateTo(section) {
-  if (section === "encuestas" || section === "ofertas") {
-    alert("Descubre nuestros socios proximamente..");
-    return;
-  }
+  // 1) Activar sección visible
+  document.querySelectorAll(".section").forEach((el) => el.classList.remove("active"));
+  const target = document.getElementById(`section-${section}`);
+  if (target) target.classList.add("active");
 
-  if (section === "recompensas") {
-    alert("Necesitas llegar al retiro minimo $5");
-    return;
-  }
+  // 2) Marcar link activo
+  document.querySelectorAll(".sidebar-link").forEach((a) => a.classList.remove("active"));
+  document.querySelector(`.sidebar-link[data-section="${section}"]`)?.classList.add("active");
 
-  if (section === "soporte") {
-    alert("¿Tienes dudas? Escribe a admin@euroffersurv.com");
-    return;
-  }
+  // 3) Lógica específica por sección
+  if (section === "encuestas") {
+    // Obtener user de sesión (guardado por initDashboard)
+    const user = window.__currentUser || null;
 
-  // "inicio" u otras secciones: no hacemos nada aquí para no romper tu flujo actual.
+    // Iniciar TimeWall solo cuando entran a Encuestas
+    if (typeof window.initTimeWallForSurveys === "function") {
+      window.initTimeWallForSurveys(user);
+    } else {
+      console.error("initTimeWallForSurveys no está disponible (¿cargaste /offerwalls/timewall.js?)");
+    }
+  }
 }
+
 
 // ========== NOTIFICATIONS (PRO) ==========
 
