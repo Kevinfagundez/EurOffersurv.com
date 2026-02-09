@@ -171,6 +171,28 @@ async function handleLogout() {
 
 // ========== DASHBOARD FUNCTIONS ==========
 
+// ✅ Nuevo: inicializa offerwall de forma genérica.
+// - Si existe offerwalls/index.js → usa window.initOfferwall(user)
+// - Si no existe → fallback a Theorem (NO se rompe lo viejo)
+function initOfferwallFallback(user) {
+  try {
+    if (typeof window.initOfferwall === "function") {
+      window.initOfferwall(user);
+      return;
+    }
+
+    // Fallback seguro: mantiene Theorem funcionando como antes
+    if (typeof window.initTheoremReach === "function") {
+      window.initTheoremReach();
+      return;
+    }
+
+    console.warn("No hay initOfferwall ni initTheoremReach disponibles.");
+  } catch (err) {
+    console.error("Error inicializando offerwall:", err);
+  }
+}
+
 async function initDashboard() {
   const session = await auth.requireAuth({
     redirectTo: ROUTES.index,
@@ -193,9 +215,9 @@ async function initDashboard() {
   initWithdraw(user);
   initLogoutModal();
 
-  if (typeof window.initTheoremReach === "function") {
-    window.initTheoremReach();
-  }
+  // ✅ Antes: forzaba Theorem siempre
+  // ✅ Ahora: initOfferwall si existe; si no, fallback a Theorem (no se rompe)
+  initOfferwallFallback(user);
 }
 
 function updateDashboardUserInfo(user) {

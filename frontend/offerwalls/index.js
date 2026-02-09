@@ -5,10 +5,14 @@ import { initTimeWall } from "./timewall.js";
 
 const PROVIDER = "timewall"; // "theorem" | "timewall"
 
-document.addEventListener("DOMContentLoaded", async () => {
+// ✅ Lo llama app.js cuando ya hay sesión y user listo
+window.initOfferwall = async function initOfferwall(user) {
+  console.log("✅ initOfferwall llamado con user:", user);
+
   if (PROVIDER === "timewall") {
-    await initTimeWall();
-  } else {
-    await initTheorem();
+    await initTimeWall(user);
+    return;
   }
-});
+
+  await initTheorem(user);
+};
