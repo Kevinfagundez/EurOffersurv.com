@@ -1,13 +1,12 @@
 <?php
 header('Content-Type: application/json');
 
-// Subimos dos niveles para llegar al backend desde /postback/timewall.php
-require_once __DIR__ . '/../backend/config/database.php';
-require_once __DIR__ . '/../backend/classes/User.php';
-require_once __DIR__ . '/../backend/classes/Transaction.php';
+// Ajuste para la RAÍZ: bajamos un nivel para entrar a backend
+require_once __DIR__ . '/backend/config/database.php';
+require_once __DIR__ . '/backend/classes/User.php';
+require_once __DIR__ . '/backend/classes/Transaction.php';
 
-// 1. CAPTURA DE DATOS (Basado exactamente en la URL de tu imagen)
-// TimeWall envía: ?userID={userID}&transactionID={transactionID}&currencyAmount={currencyAmount}
+// Captura de datos según la imagen de TimeWall
 $userId        = $_GET['userID']        ?? null;
 $transactionId = $_GET['transactionID'] ?? null;
 $reward        = $_GET['currencyAmount'] ?? null;
@@ -26,7 +25,6 @@ try {
     $user = new User();
     $tx = new Transaction();
 
-    // Verificar usuario
     $existingUser = $user->getUserById($userId);
     if (!$existingUser) {
         $conn->rollBack();
@@ -35,7 +33,6 @@ try {
         exit;
     }
 
-    // Registrar crédito
     $txResult = $tx->create($userId, $transactionId, (float)$reward, 'reward', 'timewall', 'Retiro de TimeWall');
 
     if (!empty($txResult['duplicate'])) {
