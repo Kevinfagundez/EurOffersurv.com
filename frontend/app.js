@@ -193,8 +193,8 @@ async function initDashboard() {
   initWithdraw(user);
   initLogoutModal();
 
-    // ========= OFFERWALLS (Theorem + TimeWall) =========
-    const userId =
+  // ========= OFFERWALLS (Theorem + TimeWall) =========
+  const userId =
     user.user_id ??
     user.userId ??
     user.id ??
@@ -202,27 +202,13 @@ async function initDashboard() {
 
   const userCtx = { ...user, user_id: userId };
 
-  // Asegurar contenedor TimeWall si no existe (opcional pero recomendado)
-  ensureTimewallDom();
-
-  // Iniciar sistema de offerwalls (sin reemplazar Theorem)
   if (typeof window.initOfferwall === "function") {
     await window.initOfferwall(userCtx, "theorem"); // default theorem
   } else {
-    console.error("initOfferwall no está disponible. ¿Cargaste offerwalls/index.js?");
+    console.error("initOfferwall no está disponible. Revisa dashboard.html (scripts / rutas).");
     // fallback: no rompemos nada, al menos theorem
     if (typeof window.initTheoremReach === "function") window.initTheoremReach();
   }
-
-  // Si tenés botones/tabs, conectalos así (ids de ejemplo)
-  document.getElementById("tab-theorem")?.addEventListener("click", () => {
-    window.switchOfferwall?.("theorem", userCtx);
-  });
-
-  document.getElementById("tab-timewall")?.addEventListener("click", () => {
-    window.switchOfferwall?.("timewall", userCtx);
-  });
-
 }
 
 function updateDashboardUserInfo(user) {
@@ -259,12 +245,18 @@ function updateDashboardUserInfo(user) {
   }
 }
 
-// ========== SIDEBAR NAV (ALERTS) ==========
-// ✅ Agregado sin modificar tu lógica existente.
+// ========== SIDEBAR NAV (SWITCH OFFERWALLS) ==========
 // Tu HTML llama navigateTo('inicio' | 'encuestas' | 'ofertas' | 'recompensas' | 'soporte')
 function navigateTo(section) {
-  if (section === "encuestas" || section === "ofertas") {
-    alert("Descubre nuestros socios proximamente..");
+  if (section === "encuestas") {
+    // Encuestas => Theorem
+    window.switchOfferwall?.("theorem", { user_id: auth.getUserId() });
+    return;
+  }
+
+  if (section === "ofertas") {
+    // Ofertas => TimeWall
+    window.switchOfferwall?.("timewall", { user_id: auth.getUserId() });
     return;
   }
 
@@ -278,7 +270,7 @@ function navigateTo(section) {
     return;
   }
 
-  // "inicio" u otras secciones: no hacemos nada aquí para no romper tu flujo actual.
+  // inicio u otros
 }
 
 // ========== NOTIFICATIONS (PRO) ==========
@@ -493,39 +485,6 @@ function initWithdraw(user) {
   });
 }
 
-// FUNCIÓN NUEVA
-
-function ensureTimewallDom() {
-  // Si ya existe, no hacemos nada
-  if (document.getElementById("timewall-container")) return;
-
-  // Si no existe, lo creamos dentro de un contenedor padre.
-  // OJO: elegí un padre real de tu dashboard donde quieras que aparezca.
-  // Ideal: un wrapper donde hoy se ve Theorem.
-  const parent =
-    document.getElementById("offerwall-container") || // si existe en tu HTML
-    document.getElementById("theoremreach-container")?.parentElement || // fallback
-    document.querySelector(".dashboard-container");
-
-  if (!parent) return;
-
-  const shell = document.createElement("div");
-  shell.id = "timewall-container";
-  shell.style.display = "none";
-
-  const loader = document.createElement("div");
-  loader.className = "offerwall-loader";
-  loader.style.display = "none";
-
-  const mount = document.createElement("div");
-  mount.id = "timewall_offerwall";
-
-  shell.appendChild(loader);
-  shell.appendChild(mount);
-  parent.appendChild(shell);
-}
-
-
 // ========== UI HELPERS ==========
 
 function toggleSidebar() {
@@ -708,7 +667,6 @@ function togglePassword(inputId) {
     input.setSelectionRange(len, len);
   } catch (_) {}
 }
-
 
 // ========== EXPORTS ==========
 window.scrollToLogin = scrollToLogin;
