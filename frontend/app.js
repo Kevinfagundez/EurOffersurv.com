@@ -649,6 +649,30 @@ function togglePassword(inputId) {
   } catch (_) {}
 }
 
+// ============= NUEVO TIMEWALL =========
+
+import { initOfferwall, switchOfferwall } from "./offerwalls/index.js";
+
+async function initDashboard() {
+  // ya estás autenticado según dijiste
+  const userId = auth.getUserId();
+  const user = { user_id: userId };
+
+  await initOfferwall(user, "theorem"); // por defecto theorem
+
+  // Si tenés botones / tabs:
+  document.getElementById("tab-theorem")?.addEventListener("click", () => {
+    switchOfferwall("theorem", user);
+  });
+
+  document.getElementById("tab-timewall")?.addEventListener("click", () => {
+    switchOfferwall("timewall", user);
+  });
+}
+
+initDashboard();
+
+
 // ========== EXPORTS ==========
 window.scrollToLogin = scrollToLogin;
 window.handleRegister = handleRegister;

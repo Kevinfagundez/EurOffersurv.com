@@ -2157,3 +2157,11 @@ body {
 }
 
 .logout-pop-btn:hover { opacity: 0.92; }
+
+/*NUEVO TIMEWALL*/
+
+.offerwall-loader {
+  display: none;
+  padding: 16px;
+  text-align: center;
+}
