@@ -55,12 +55,11 @@ $amount = floatval($amount);
 $db = Database::getInstance()->getConnection();
 
 // Buscar usuario por users.user_id (NO por id numérico)
-$stmt = $db->prepare("SELECT user_id, username, balance, total_earned FROM users WHERE user_id = :uid LIMIT 1");
+$stmt = $db->prepare("SELECT user_id, first_name, last_name, balance, total_earned FROM users WHERE user_id = :uid LIMIT 1");
 $stmt->execute([':uid' => $uid]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
-  // Respondemos 200 para que TimeWall no reintente eternamente
   ok([
     'message' => 'Usuario no encontrado (no se acreditó)',
     'uid' => $uid,
