@@ -1,37 +1,23 @@
-function createTheoremProvider() {
-  const container = () => document.getElementById("theoremreach-container");
-  let mounted = false;
+export async function initTheorem(user) {
+  console.log("🟩 initTheorem ejecutándose");
 
-  return {
-    async mount() {
-      if (mounted) return;
-      mounted = true;
+  // limpiar TimeWall
+  const tw = document.getElementById("offerwall-container");
+  if (tw) tw.innerHTML = "";
 
-      if (!container()) {
-        console.error("No existe #theoremreach-container");
-        return;
-      }
+  // limpiar target theorem
+  const target = document.getElementById("theoremreach_offerwall");
+  if (target) target.innerHTML = "";
 
-      // no mostramos aún (show() lo hará)
-      container().style.display = "none";
+  // mostrar loader
+  const container = document.getElementById("theoremreach-container");
+  const loader = container?.querySelector(".offerwall-loader");
+  if (loader) loader.style.display = "flex";
 
-      if (typeof window.initTheoremReach !== "function") {
-        console.error("initTheoremReach no está disponible. ¿Cargaste theoremreach-integration.js?");
-        return;
-      }
-
-      // Tu integración intacta
-      window.initTheoremReach();
-    },
-
-    show() {
-      container()?.style && (container().style.display = "block");
-    },
-
-    hide() {
-      container()?.style && (container().style.display = "none");
-    },
-  };
+  // llamar integración ORIGINAL
+  if (typeof window.initTheoremReach === "function") {
+    window.initTheoremReach();
+  } else {
+    console.error("❌ window.initTheoremReach no existe");
+  }
 }
-
-window.createTheoremProvider = createTheoremProvider;
