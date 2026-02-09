@@ -60,10 +60,22 @@
 
     /**
      * Obtiene el ID del usuario desde la sesión
+     * Utiliza el mismo método que auth.js para obtener datos del usuario
      */
     async getUserId() {
       try {
-        const response = await fetch('/backend/api/user-data.php', {
+        // Intentar obtener desde auth.js primero si está disponible
+        if (window.auth && typeof window.auth.getSession === 'function') {
+          const session = await window.auth.getSession();
+          if (session && session.user && session.user.id) {
+            this.userId = session.user.id;
+            console.log('[TimeWall] ID de usuario obtenido desde auth.js:', this.userId);
+            return true;
+          }
+        }
+
+        // Fallback: intentar fetch al endpoint
+        const response = await fetch('../backend/api/user-data.php', {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -72,14 +84,16 @@
         });
 
         if (!response.ok) {
-          throw new Error('Error al obtener datos del usuario');
+          console.error('[TimeWall] Response status:', response.status);
+          throw new Error(`Error al obtener datos del usuario (${response.status})`);
         }
 
         const data = await response.json();
+        console.log('[TimeWall] Respuesta del servidor:', data);
         
         if (data.success && data.user && data.user.id) {
           this.userId = data.user.id;
-          console.log('[TimeWall] ID de usuario obtenido:', this.userId);
+          console.log('[TimeWall] ID de usuario obtenido del endpoint:', this.userId);
           return true;
         } else {
           console.error('[TimeWall] Respuesta inválida:', data);
@@ -88,6 +102,23 @@
 
       } catch (error) {
         console.error('[TimeWall] Error al obtener ID del usuario:', error);
+        console.error('[TimeWall] Intentando obtener desde sessionStorage...');
+        
+        // Último intento: buscar en sessionStorage
+        try {
+          const sessionData = sessionStorage.getItem('euroffersurv_session');
+          if (sessionData) {
+            const parsed = JSON.parse(sessionData);
+            if (parsed && parsed.user && parsed.user.id) {
+              this.userId = parsed.user.id;
+              console.log('[TimeWall] ID de usuario obtenido desde sessionStorage:', this.userId);
+              return true;
+            }
+          }
+        } catch (storageError) {
+          console.error('[TimeWall] Error al leer sessionStorage:', storageError);
+        }
+        
         return false;
       }
     }
