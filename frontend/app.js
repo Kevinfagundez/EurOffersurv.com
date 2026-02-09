@@ -232,6 +232,28 @@ function updateDashboardUserInfo(user) {
   }
 }
 
+// ========== SIDEBAR NAV (ALERTS) ==========
+// ✅ Agregado sin modificar tu lógica existente.
+// Tu HTML llama navigateTo('inicio' | 'encuestas' | 'ofertas' | 'recompensas' | 'soporte')
+function navigateTo(section) {
+  if (section === "encuestas" || section === "ofertas") {
+    alert("Descubre nuestros socios proximamente");
+    return;
+  }
+
+  if (section === "recompensas") {
+    alert("necesitas llegar al retiro minimo $5");
+    return;
+  }
+
+  if (section === "soporte") {
+    alert("¿tienes dudas? escribe a admin@euroffersurv.com");
+    return;
+  }
+
+  // "inicio" u otras secciones: no hacemos nada aquí para no romper tu flujo actual.
+}
+
 // ========== NOTIFICATIONS (PRO) ==========
 
 function initNotifications(user) {
@@ -632,3 +654,4 @@ window.scrollToLogin = scrollToLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
 window.togglePassword = togglePassword;
+window.navigateTo = navigateTo;
