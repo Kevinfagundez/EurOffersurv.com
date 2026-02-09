@@ -1,25 +1,43 @@
-import { createTheoremProvider } from "./theorem.js";
-import { createTimewallProvider } from "./timewall.js";
+// frontend/offerwalls/index.js (SIN MODULES)
+// Expone window.initOfferwall(user, defaultProvider)
+// y window.switchOfferwall(name, user)
 
-const providers = {
-  theorem: createTheoremProvider(),
-  timewall: createTimewallProvider(),
-};
+(function () {
+  const providers = {
+    theorem: createTheoremProvider(),
+    timewall: createTimewallProvider(),
+  };
 
-let active = null;
+  let active = null;
 
-export async function initOfferwall(user, defaultProvider = "theorem") {
-  await switchOfferwall(defaultProvider, user);
-}
+  async function initOfferwall(user, defaultProvider = "theorem") {
+    // Montamos ambos una vez, pero mostramos solo el default
+    await providers.theorem.mount(user);
+    await providers.timewall.mount(user);
 
-export async function switchOfferwall(name, user) {
-  const next = providers[name];
-  if (!next) throw new Error(`Provider inválido: ${name}`);
+    // Ocultar ambos y mostrar el elegido
+    providers.theorem.hide();
+    providers.timewall.hide();
 
-  if (active && active !== next) active.hide();
+    await switchOfferwall(defaultProvider, user);
+  }
 
-  await next.mount(user);
-  next.show();
+  async function switchOfferwall(name, user) {
+    const next = providers[name];
+    if (!next) {
+      console.error("Provider inválido:", name);
+      return;
+    }
 
-  active = next;
-}
+    if (active && active !== next) active.hide();
+
+    // mount defensivo por si initOfferwall no se llamó
+    await next.mount(user);
+
+    next.show();
+    active = next;
+  }
+
+  window.initOfferwall = initOfferwall;
+  window.switchOfferwall = switchOfferwall;
+})();
