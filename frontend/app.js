@@ -9,6 +9,7 @@ const ROUTES = {
   index: "/index.html",
   register: "/register.html",
   dashboard: "/dashboard.html",
+  encuestas: "/encuestas.html", // 🆕 Nueva ruta para TimeWall
 };
 
 // ========== LOGIN PAGE FUNCTIONS ==========
@@ -230,28 +231,102 @@ function updateDashboardUserInfo(user) {
       el.textContent = completedOffers;
     });
   }
+
+  // 🆕 Actualizar estadísticas de encuestas (TimeWall)
+  const completedSurveys = user.completedSurveys ?? user.completed_surveys;
+  if (completedSurveys !== undefined && completedSurveys !== null) {
+    document.querySelectorAll("[data-completed-surveys]").forEach((el) => {
+      el.textContent = completedSurveys;
+    });
+  }
+
+  const surveyEarnings = user.surveyEarnings ?? user.survey_earnings;
+  if (surveyEarnings !== undefined && surveyEarnings !== null) {
+    const se = Number(surveyEarnings);
+    if (!Number.isNaN(se)) {
+      document.querySelectorAll("[data-survey-earnings]").forEach((el) => {
+        el.textContent = `$${se.toFixed(2)}`;
+      });
+    }
+  }
 }
 
-// ========== SIDEBAR NAV (ALERTS) ==========
-// ✅ Agregado sin modificar tu lógica existente.
-// Tu HTML llama navigateTo('inicio' | 'encuestas' | 'ofertas' | 'recompensas' | 'soporte')
+// ========== SIDEBAR NAV (NAVEGACIÓN ACTUALIZADA) ==========
+// 🆕 ACTUALIZADO: Ahora "encuestas" navega a la página de TimeWall
 function navigateTo(section) {
-  if (section === "encuestas" || section === "ofertas") {
+  console.log('[Navigation] Navegando a:', section);
+
+  // 🆕 Encuestas ahora navega a la página de TimeWall
+  if (section === "encuestas") {
+    // Verificar si ya estamos en la página de encuestas
+    if (window.location.pathname === ROUTES.encuestas) {
+      console.log('[Navigation] Ya estás en la página de encuestas');
+      return;
+    }
+    window.location.href = ROUTES.encuestas;
+    return;
+  }
+
+  // Inicio navega al dashboard
+  if (section === "inicio") {
+    // Verificar si ya estamos en el dashboard
+    if (window.location.pathname === ROUTES.dashboard) {
+      console.log('[Navigation] Ya estás en el dashboard');
+      return;
+    }
+    window.location.href = ROUTES.dashboard;
+    return;
+  }
+
+  // Ofertas - pendiente de implementar
+  if (section === "ofertas") {
     alert("Descubre nuestros socios proximamente..");
     return;
   }
 
+  // Recompensas - requiere balance mínimo
   if (section === "recompensas") {
     alert("Necesitas llegar al retiro minimo $5");
     return;
   }
 
+  // Soporte - contacto
   if (section === "soporte") {
     alert("¿Tienes dudas? Escribe a admin@euroffersurv.com");
     return;
   }
 
-  // "inicio" u otras secciones: no hacemos nada aquí para no romper tu flujo actual.
+  console.warn('[Navigation] Sección no reconocida:', section);
+}
+
+// 🆕 Función para actualizar el estado activo del sidebar
+function updateSidebarActive() {
+  const currentPath = window.location.pathname;
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+  // Remover clase active de todos los links
+  sidebarLinks.forEach(link => {
+    link.classList.remove('active');
+  });
+
+  // Determinar qué link debe estar activo
+  let activeSection = 'inicio';
+  
+  if (currentPath.includes('encuestas.html')) {
+    activeSection = 'encuestas';
+  } else if (currentPath.includes('dashboard.html') || currentPath === '/') {
+    activeSection = 'inicio';
+  }
+
+  // Marcar el link correcto como activo
+  sidebarLinks.forEach(link => {
+    const onclick = link.getAttribute('onclick');
+    if (onclick && onclick.includes(`'${activeSection}'`)) {
+      link.classList.add('active');
+    }
+  });
+
+  console.log('[Navigation] Sidebar activo actualizado:', activeSection);
 }
 
 // ========== NOTIFICATIONS (PRO) ==========
@@ -590,6 +665,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initDashboard();
     initMenuToggle();
     initLogoutModal();
+    updateSidebarActive(); // 🆕 Actualizar sidebar en cada carga
   }
 
   document.addEventListener("click", closeSidebarOnOutsideClick);
