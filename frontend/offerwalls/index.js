@@ -1,3 +1,5 @@
+console.log("✅ offerwalls/index.js cargado");
+
 import { initTheorem } from "./theorem.js";
 import { initTimeWall } from "./timewall.js";
 
