@@ -4,6 +4,7 @@ import { initTheorem } from "./theorem.js";
 import { initTimeWall } from "./timewall.js";
 
 const PROVIDER = "timewall"; // "theorem" | "timewall"
+const PROVIDER = "theorem";
 
 // ✅ Lo llama app.js cuando ya hay sesión y user listo
 window.initOfferwall = async function initOfferwall(user) {

@@ -1,20 +1,25 @@
 export async function initTimeWall(user) {
-  const uid = user?.user_id || user?.userId || user?.id;
-  if (!uid) {
-    console.error("TimeWall: uid inválido", user);
-    return;
-  }
+  console.log("🟦 initTimeWall ejecutándose");
 
-  const container = document.getElementById("offerwall-container");
-  if (!container) {
-    console.error("TimeWall: no existe #offerwall-container");
-    return;
-  }
+  // Apagar loader de Theorem
+  const container = document.getElementById("theoremreach-container");
+  const loader = container?.querySelector(".offerwall-loader");
+  if (loader) loader.style.display = "none";
+
+  // Vaciar contenedor Theorem
+  const tr = document.getElementById("theoremreach_offerwall");
+  if (tr) tr.innerHTML = "";
+
+  // Render TimeWall
+  const uid = user?.user_id || user?.userId || user?.id;
+  const tw = document.getElementById("offerwall-container");
+  if (!tw) return console.error("No existe #offerwall-container");
+  if (!uid) return console.error("No hay uid para TimeWall", user);
 
   const oid = "8a2a1f2f37b4c642";
   const url = `https://timewall.io/users/login?oid=${oid}&uid=${encodeURIComponent(uid)}`;
 
-  container.innerHTML = `
+  tw.innerHTML = `
     <iframe title="TimeWall"
       src="${url}"
       frameborder="0"
