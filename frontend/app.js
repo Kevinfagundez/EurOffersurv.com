@@ -237,17 +237,17 @@ function updateDashboardUserInfo(user) {
 // Tu HTML llama navigateTo('inicio' | 'encuestas' | 'ofertas' | 'recompensas' | 'soporte')
 function navigateTo(section) {
   if (section === "encuestas" || section === "ofertas") {
-    alert("Descubre nuestros socios proximamente");
+    alert("Descubre nuestros socios proximamente..");
     return;
   }
 
   if (section === "recompensas") {
-    alert("necesitas llegar al retiro minimo $5");
+    alert("Necesitas llegar al retiro minimo $5");
     return;
   }
 
   if (section === "soporte") {
-    alert("¿tienes dudas? escribe a admin@euroffersurv.com");
+    alert("¿Tienes dudas? Escribe a admin@euroffersurv.com");
     return;
   }
 
