@@ -74,7 +74,7 @@ function initComingSoonLinks() {
       e.stopPropagation();
 
       const feature = link.dataset.feature || "Esta sección";
-      showToast(`${feature} estará disponible próximamente 🚧`, "info");
+      showToast(`${feature} estará disponible próximamente`, "info");
     });
   });
 }
