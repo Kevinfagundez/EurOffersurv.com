@@ -6,7 +6,7 @@
 
 (function () {
   // ✅ 1) PONÉ TU PLACEMENT ID REAL ACÁ
-  const VORTEX_PLACEMENT_ID = "TU_PLACEMENT_ID_AQUI";
+  const VORTEX_PLACEMENT_ID = "698a700ea982f180b5c3f551";
 
   function pickUserIdentity(user) {
     // Ideal: un ID estable de tu sistema
