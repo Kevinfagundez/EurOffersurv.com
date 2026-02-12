@@ -9,7 +9,8 @@ const ROUTES = {
   index: "/index.html",
   register: "/register.html",
   dashboard: "/dashboard.html",
-  encuestas: "/encuestas.html", // 🆕 Nueva ruta para TimeWall
+  encuestas: "/encuestas.html", // TimeWall
+  ofertas: "/ofertas.html", // 🆕 Wannads
 };
 
 // ========== LOGIN PAGE FUNCTIONS ==========
@@ -249,16 +250,26 @@ function updateDashboardUserInfo(user) {
       });
     }
   }
+
+  // 🆕 Actualizar estadísticas de Wannads
+  const wannadsEarnings = user.wannadsEarnings ?? user.wannads_earnings;
+  if (wannadsEarnings !== undefined && wannadsEarnings !== null) {
+    const we = Number(wannadsEarnings);
+    if (!Number.isNaN(we)) {
+      document.querySelectorAll("[data-wannads-earnings]").forEach((el) => {
+        el.textContent = `$${we.toFixed(2)}`;
+      });
+    }
+  }
 }
 
 // ========== SIDEBAR NAV (NAVEGACIÓN ACTUALIZADA) ==========
-// 🆕 ACTUALIZADO: Ahora "encuestas" navega a la página de TimeWall
+// 🆕 ACTUALIZADO: Navegación completa incluyendo Wannads
 function navigateTo(section) {
   console.log('[Navigation] Navegando a:', section);
 
-  // 🆕 Encuestas ahora navega a la página de TimeWall
+  // 🆕 Encuestas - TimeWall
   if (section === "encuestas") {
-    // Verificar si ya estamos en la página de encuestas
     if (window.location.pathname === ROUTES.encuestas) {
       console.log('[Navigation] Ya estás en la página de encuestas');
       return;
@@ -267,20 +278,23 @@ function navigateTo(section) {
     return;
   }
 
-  // Inicio navega al dashboard
+  // 🆕 Ofertas - Wannads
+  if (section === "ofertas") {
+    if (window.location.pathname === ROUTES.ofertas) {
+      console.log('[Navigation] Ya estás en la página de ofertas');
+      return;
+    }
+    window.location.href = ROUTES.ofertas;
+    return;
+  }
+
+  // Inicio - Dashboard con TheoremReach
   if (section === "inicio") {
-    // Verificar si ya estamos en el dashboard
     if (window.location.pathname === ROUTES.dashboard) {
       console.log('[Navigation] Ya estás en el dashboard');
       return;
     }
     window.location.href = ROUTES.dashboard;
-    return;
-  }
-
-  // Ofertas - pendiente de implementar
-  if (section === "ofertas") {
-    alert("Descubre nuestros socios proximamente..");
     return;
   }
 
@@ -314,6 +328,8 @@ function updateSidebarActive() {
   
   if (currentPath.includes('encuestas.html')) {
     activeSection = 'encuestas';
+  } else if (currentPath.includes('ofertas.html')) {
+    activeSection = 'ofertas';
   } else if (currentPath.includes('dashboard.html') || currentPath === '/') {
     activeSection = 'inicio';
   }
