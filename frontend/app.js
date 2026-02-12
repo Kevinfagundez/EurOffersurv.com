@@ -10,7 +10,8 @@ const ROUTES = {
   register: "/register.html",
   dashboard: "/dashboard.html",
   encuestas: "/encuestas.html", // TimeWall
-  ofertas: "/ofertas.html", // 🆕 Wannads
+  ofertas: "/ofertas.html",     // Wannads
+  recompensas: "/recompensas.html", // ✅ Mobivortex
 };
 
 // ========== LOGIN PAGE FUNCTIONS ==========
@@ -264,43 +265,47 @@ function updateDashboardUserInfo(user) {
 }
 
 // ========== SIDEBAR NAV (NAVEGACIÓN ACTUALIZADA) ==========
-// 🆕 ACTUALIZADO: Navegación completa incluyendo Wannads
-function navigateTo(section) {
-  console.log('[Navigation] Navegando a:', section);
 
-  // 🆕 Encuestas - TimeWall
+function navigateTo(section) {
+  console.log("[Navigation] Navegando a:", section);
+
+  // Encuestas - TimeWall
   if (section === "encuestas") {
     if (window.location.pathname === ROUTES.encuestas) {
-      console.log('[Navigation] Ya estás en la página de encuestas');
+      console.log("[Navigation] Ya estás en la página de encuestas");
       return;
     }
     window.location.href = ROUTES.encuestas;
     return;
   }
 
-  // 🆕 Ofertas - Wannads
+  // Ofertas - Wannads
   if (section === "ofertas") {
     if (window.location.pathname === ROUTES.ofertas) {
-      console.log('[Navigation] Ya estás en la página de ofertas');
+      console.log("[Navigation] Ya estás en la página de ofertas");
       return;
     }
     window.location.href = ROUTES.ofertas;
     return;
   }
 
-  // Inicio - Dashboard con TheoremReach
+  // Inicio - Dashboard
   if (section === "inicio") {
     if (window.location.pathname === ROUTES.dashboard) {
-      console.log('[Navigation] Ya estás en el dashboard');
+      console.log("[Navigation] Ya estás en el dashboard");
       return;
     }
     window.location.href = ROUTES.dashboard;
     return;
   }
 
-  // Recompensas - requiere balance mínimo
+  // ✅ Mobivortex
   if (section === "recompensas") {
-    alert("Necesitas llegar al retiro minimo $5");
+    if (window.location.pathname === ROUTES.recompensas) {
+      console.log("[Navigation] Ya estás en Mobivortex");
+      return;
+    }
+    window.location.href = ROUTES.recompensas;
     return;
   }
 
@@ -310,39 +315,39 @@ function navigateTo(section) {
     return;
   }
 
-  console.warn('[Navigation] Sección no reconocida:', section);
+  console.warn("[Navigation] Sección no reconocida:", section);
 }
 
 // 🆕 Función para actualizar el estado activo del sidebar
 function updateSidebarActive() {
   const currentPath = window.location.pathname;
-  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  const sidebarLinks = document.querySelectorAll(".sidebar-link");
 
   // Remover clase active de todos los links
-  sidebarLinks.forEach(link => {
-    link.classList.remove('active');
-  });
+  sidebarLinks.forEach((link) => link.classList.remove("active"));
 
   // Determinar qué link debe estar activo
-  let activeSection = 'inicio';
-  
-  if (currentPath.includes('encuestas.html')) {
-    activeSection = 'encuestas';
-  } else if (currentPath.includes('ofertas.html')) {
-    activeSection = 'ofertas';
-  } else if (currentPath.includes('dashboard.html') || currentPath === '/') {
-    activeSection = 'inicio';
+  let activeSection = "inicio";
+
+  if (currentPath.includes("encuestas.html")) {
+    activeSection = "encuestas";
+  } else if (currentPath.includes("ofertas.html")) {
+    activeSection = "ofertas";
+  } else if (currentPath.includes("recompensas.html")) {
+    activeSection = "recompensas";
+  } else if (currentPath.includes("dashboard.html") || currentPath === "/") {
+    activeSection = "inicio";
   }
 
   // Marcar el link correcto como activo
-  sidebarLinks.forEach(link => {
-    const onclick = link.getAttribute('onclick');
+  sidebarLinks.forEach((link) => {
+    const onclick = link.getAttribute("onclick");
     if (onclick && onclick.includes(`'${activeSection}'`)) {
-      link.classList.add('active');
+      link.classList.add("active");
     }
   });
 
-  console.log('[Navigation] Sidebar activo actualizado:', activeSection);
+  console.log("[Navigation] Sidebar activo actualizado:", activeSection);
 }
 
 // ========== NOTIFICATIONS (PRO) ==========
@@ -676,12 +681,12 @@ document.addEventListener("DOMContentLoaded", () => {
     initPasswordStrength();
   }
 
-  // DASHBOARD
+  // PÁGINAS PROTEGIDAS (dashboard y offerwalls)
   if (document.querySelector(".dashboard-container")) {
     initDashboard();
     initMenuToggle();
     initLogoutModal();
-    updateSidebarActive(); // 🆕 Actualizar sidebar en cada carga
+    updateSidebarActive();
   }
 
   document.addEventListener("click", closeSidebarOnOutsideClick);
